@@ -330,7 +330,7 @@
               'net_with_v8',
               'net_browser_services',
               'net_utility_services',
-              '../third_party/mojo/mojo_edk.gyp:mojo_system_impl',
+              #'../third_party/mojo/mojo_edk.gyp:mojo_system_impl',
             ],
           }, {  # else
             'sources!': [
@@ -926,7 +926,7 @@
             'interfaces/proxy_resolver_service.mojom',
           ],
           'includes': [
-            '../third_party/mojo/mojom_bindings_generator.gypi',
+            #'../third_party/mojo/mojom_bindings_generator.gypi',
           ],
         },
         {
@@ -948,10 +948,10 @@
             'mojo_type_converters',
             'net',
             'net_interfaces',
-            '../mojo/mojo_base.gyp:mojo_common_lib',
-            '../mojo/mojo_base.gyp:mojo_environment_chromium',
-            '../mojo/mojo_base.gyp:mojo_url_type_converters',
-            '../third_party/mojo/mojo_public.gyp:mojo_cpp_bindings',
+            #'../mojo/mojo_base.gyp:mojo_common_lib',
+            #'../mojo/mojo_base.gyp:mojo_environment_chromium',
+            #'../mojo/mojo_base.gyp:mojo_url_type_converters',
+            #'../third_party/mojo/mojo_public.gyp:mojo_cpp_bindings',
 
             # NOTE(amistry): As long as we support in-process Mojo v8 PAC, we
             # need this dependency since in_process_mojo_proxy_resolver_factory
@@ -978,8 +978,8 @@
             'mojo_type_converters',
             'net_interfaces',
             'net_with_v8',
-            '../mojo/mojo_base.gyp:mojo_url_type_converters',
-            '../third_party/mojo/mojo_public.gyp:mojo_cpp_bindings',
+            #'../mojo/mojo_base.gyp:mojo_url_type_converters',
+            #'../third_party/mojo/mojo_public.gyp:mojo_cpp_bindings',
           ],
         },
         {
@@ -995,7 +995,7 @@
           'dependencies': [
             'net',
             'net_interfaces',
-            '../third_party/mojo/mojo_public.gyp:mojo_cpp_bindings',
+            #'../third_party/mojo/mojo_public.gyp:mojo_cpp_bindings',
           ],
         },
       ],

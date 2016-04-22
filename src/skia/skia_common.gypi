@@ -7,7 +7,7 @@
 {
   'includes': [
     # blink_skia_config.gypi defines blink_skia_defines
-    '../third_party/WebKit/public/blink_skia_config.gypi',
+    #'../third_party/WebKit/public/blink_skia_config.gypi',
 
     # skia_for_chromium_defines.gypi defines skia_for_chromium_defines
     '../third_party/skia/gyp/skia_for_chromium_defines.gypi',
@@ -133,7 +133,7 @@
 
       # This variable contains additional defines, specified in blink's
       # blink_skia_config.gypi file.
-      '<@(blink_skia_defines)',
+      #'<@(blink_skia_defines)',
 
       # This variable contains additional defines, specified in skia's
       # skia_for_chromium_defines.gypi file.

@@ -1,0 +1,8 @@
+*.sln
+*.pyc
+*.vcxproj
+*.vcxproj.filters
+*.opensdf
+*.sdf
+*.suo
+/src/out
