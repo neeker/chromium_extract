@@ -1,0 +1,13 @@
+diff --git a/pr/src/md/windows/w95thred.c b/pr/src/md/windows/w95thred.c
+index f5c7703..b2cebae 100644
+--- a/pr/src/md/windows/w95thred.c
++++ b/pr/src/md/windows/w95thred.c
+@@ -313,7 +313,7 @@ PRThread *thread;
+ 
+    	if (NULL == thread) {
+ 		thread = _PRI_AttachThread(
+-            PR_USER_THREAD, PR_PRIORITY_NORMAL, NULL, 0);
++            PR_SYSTEM_THREAD, PR_PRIORITY_NORMAL, NULL, 0);
+ 	}
+ 	PR_ASSERT(thread != NULL);
+ 	return thread;
