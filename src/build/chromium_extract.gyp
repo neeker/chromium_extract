@@ -20,6 +20,7 @@
         '../base/base.gyp:base',
         '../base/base.gyp:base_i18n',
         '../net/net.gyp:net',
+        '../net/net.gyp:http_server',
         '../sql/sql.gyp:sql',
         '../ui/base/ui_base.gyp:ui_base',
       ],

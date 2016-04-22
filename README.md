@@ -14,6 +14,7 @@ chromium基础库抽取包
 
 ### net
 
+基础的网络操作工具函数库。
 
 ### brotli 
 
@@ -44,15 +45,40 @@ Harfbuzz是一个OpenType的构图引擎[](http://www.freedesktop.org/wiki/Softw
 
 ### gfx
 
+Chromium专用的图形和渲染相关的助手代码。
+
+### breakpad
+
+专门用于崩溃后处理的库。
+
 ### boringssl
+
+OpenSSL的一个分支（具体还不清楚有什么优化或不同？）
 
 ### url_lib
 
+URL处理库
+
 ### crypto
+
+加解密相关库。
 
 ### sdch
 
+http的sdch压缩客户端实现库。
+
 ### sql
+
+基于SQLite3的封装库。
+
+### testing
+
+单元测试相关的工具代码（gtest）。
+
+### v8
+
+V8引擎库。
+
 
 ## 编译指南
 
