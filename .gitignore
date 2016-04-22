@@ -6,3 +6,4 @@
 *.sdf
 *.suo
 /src/out
+/src/build/ipch
