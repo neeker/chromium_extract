@@ -21,6 +21,7 @@
         '../base/base.gyp:base_i18n',
         '../net/net.gyp:net',
         '../sql/sql.gyp:sql',
+        '../ui/base/ui_base.gyp:ui_base',
       ],
     },
   ],

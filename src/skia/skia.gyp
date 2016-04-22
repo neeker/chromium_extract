@@ -170,28 +170,28 @@
         '../build/android/increase_size_for_speed.gypi',
       ],
     },
-    {
-      'target_name': 'skia_mojo',
-      'type': 'static_library',
-      # The optimize: 'max' scattered throughout are particularly
-      # important when compiled by MSVC 2013, which seems 
-      # to mis-link-time-compile code that's built with
-      # different optimization levels. http://crbug.com/543583
-      'variables': {
-        'optimize': 'max',
-      },
-      'dependencies': [
-        'skia',
-        '../base/base.gyp:base',
-      ],
-      'includes': [
-        '../third_party/mojo/mojom_bindings_generator.gypi',
-      ],
-      'sources': [
-        # Note: file list duplicated in GN build.
-        'public/interfaces/bitmap.mojom',
-        'public/type_converters.cc',
-      ],
-    },
+    #{
+    #  'target_name': 'skia_mojo',
+    #  'type': 'static_library',
+    #  # The optimize: 'max' scattered throughout are particularly
+    #  # important when compiled by MSVC 2013, which seems 
+    #  # to mis-link-time-compile code that's built with
+    #  # different optimization levels. http://crbug.com/543583
+    #  'variables': {
+    #    'optimize': 'max',
+    #  },
+    #  'dependencies': [
+    #    'skia',
+    #    '../base/base.gyp:base',
+    #  ],
+    #  'includes': [
+    #    '../third_party/mojo/mojom_bindings_generator.gypi',
+    #  ],
+    #  'sources': [
+    #    # Note: file list duplicated in GN build.
+    #    'public/interfaces/bitmap.mojom',
+    #    'public/type_converters.cc',
+    #  ],
+    #},
   ],
 }

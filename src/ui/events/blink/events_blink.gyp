@@ -13,7 +13,7 @@
       'type': 'static_library',
       'dependencies': [
         '../../../cc/cc.gyp:cc',
-        '../../../third_party/WebKit/public/blink_headers.gyp:blink_headers',
+        #'../../../third_party/WebKit/public/blink_headers.gyp:blink_headers',
         '../../gfx/gfx.gyp:gfx_geometry',
         '../events.gyp:events',
         '../events.gyp:gesture_detection',

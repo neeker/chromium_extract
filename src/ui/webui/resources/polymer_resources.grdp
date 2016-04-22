@@ -19,7 +19,7 @@
     $ txt_to_polymer_grdp.py /tmp/list.txt > polymer_resources.grdp
 -->
 <grit-part>
-  <!-- Polymer 1.0 -->
+  <!-- Polymer 1.0 
   <structure name="IDR_POLYMER_1_0_FONT_ROBOTO_ROBOTO_HTML"
              file="../../../third_party/polymer/v1_0/components-chromium/font-roboto/roboto.html"
              type="chrome_html" />
@@ -683,5 +683,6 @@
   <structure name="IDR_POLYMER_1_0_WEB_ANIMATIONS_JS_WEB_ANIMATIONS_NEXT_LITE_MIN_JS"
              file="../../../third_party/web-animations-js/sources/web-animations-next-lite.min.js"
              type="chrome_html" />
+  -->
 </grit-part>
 

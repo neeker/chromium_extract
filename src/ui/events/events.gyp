@@ -219,7 +219,7 @@
       'type': 'static_library',
       'dependencies': [
         '../../base/base.gyp:base',
-        '../../third_party/WebKit/public/blink_headers.gyp:blink_headers',
+        #'../../third_party/WebKit/public/blink_headers.gyp:blink_headers',
         '../gfx/gfx.gyp:gfx_geometry',
         'events',
         'gesture_detection',
