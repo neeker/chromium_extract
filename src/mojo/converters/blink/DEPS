@@ -1,6 +1,0 @@
-include_rules = [
-  "+base",
-  "+components/mus/public",
-  "+third_party/WebKit/public",
-  "+ui/events"
-]
