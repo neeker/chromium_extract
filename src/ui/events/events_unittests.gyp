@@ -29,7 +29,7 @@
         'events.gyp:events_ipc',
         'events.gyp:events_test_support',
         'events.gyp:gesture_detection',
-        'events.gyp:gestures_blink',
+        #'events.gyp:gestures_blink',
         'platform/events_platform.gyp:events_platform',
       ],
       'sources': [
@@ -50,7 +50,7 @@
         'gesture_detection/snap_scroll_controller_unittest.cc',
         'gesture_detection/touch_disposition_gesture_filter_unittest.cc',
         'gesture_detection/velocity_tracker_unittest.cc',
-        'gestures/blink/web_gesture_curve_impl_unittest.cc',
+        #'gestures/blink/web_gesture_curve_impl_unittest.cc',
         'gestures/fling_curve_unittest.cc',
         'gestures/gesture_provider_aura_unittest.cc',
         'gestures/motion_event_aura_unittest.cc',
@@ -129,7 +129,7 @@
             'blink/input_scroll_elasticity_controller_unittest.cc',
           ],
           'dependencies': [
-            'blink/events_blink.gyp:events_blink',
+            #'blink/events_blink.gyp:events_blink',
           ],
         }],
       ],

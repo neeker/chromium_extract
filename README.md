@@ -41,8 +41,6 @@ Harfbuzz是一个OpenType的构图引擎[](http://www.freedesktop.org/wiki/Softw
 而新的目前还处于比较活跃的开发状态的这个代码树，在整个代码的结构上面与前面有着非常大的区别，
 为了区分新的这个称之为harfbuzz-ng。
 
-### event
-
 ### gfx
 
 Chromium专用的图形和渲染相关的助手代码。
@@ -79,6 +77,36 @@ http的sdch压缩客户端实现库。
 
 V8引擎库。
 
+### angle
+
+一个跨操作系统使用一套API来访问不同的3D引擎。包括 OpenGL ES 2.0 、OpenGL ES 3.0、Direct3D9、Direct3D11。
+
+### smhasher
+
+一种非加密型哈希函数，适用于一般的哈希检索操作，具体见百科说明：
+
+[](https://zh.wikipedia.org/zh/Murmur%E5%93%88%E5%B8%8C)
+
+### mesa
+
+Mesa 3D是一个在MIT许可证下开放源代码的三维计算机图形库，以开源形式实现了OpenGL的应用程序接口。
+
+OpenGL的高效实现一般依赖于显示设备厂商提供的硬件，而Mesa 3D是一个纯基于软件的图形应用程序接口。
+
+由于许可证的原因，它只声称是一个“类似”于OpenGL的应用程序接口。
+
+由于Mesa 3D的API是和OpenGL相同，具体的OpenGL版本浏览Mesa 3D官方网站，
+我们可以这么认为它就是OpenGL的软件模拟GPU光栅处理器的一个实现。
+我们知道如果要实现一个OpenGL，其本身是一个设备器，不能实现窗体的透明，如果我想要实现窗体透明，又想要有3D的应用，可以试试它。
+
+具体见百科说明：
+
+[](https://zh.wikipedia.org/wiki/Mesa_3D)
+
+
+### khronos
+
+包含EGL、OpenGL ES2、OpenGL ES3的头文件。
 
 ## 编译指南
 
@@ -87,6 +115,7 @@ V8引擎库。
 **环境要求**
 
 1. VS2013
+2. Windows SDK 8.1或[10](https://developer.microsoft.com/en-US/windows/downloads/windows-10-sdk)
 2. python2.7
 
 **执行命令**

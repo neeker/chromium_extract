@@ -108,7 +108,7 @@
         '<(DEPTH)/cc/cc_tests.gyp:cc_test_support',
         '<(DEPTH)/skia/skia.gyp:skia',
         '<(DEPTH)/testing/gtest.gyp:gtest',
-        '<(DEPTH)/third_party/WebKit/public/blink.gyp:blink_minimal',
+        #'<(DEPTH)/third_party/WebKit/public/blink.gyp:blink_minimal',
         '<(DEPTH)/ui/base/ui_base.gyp:ui_base',
         '<(DEPTH)/ui/gfx/gfx.gyp:gfx',
         '<(DEPTH)/ui/gfx/gfx.gyp:gfx_geometry',

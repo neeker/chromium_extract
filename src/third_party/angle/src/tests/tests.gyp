@@ -5,7 +5,7 @@
 {
     'includes':
     [
-        'deqp.gypi',
+        #'deqp.gypi',
         '../../build/common_defines.gypi',
     ],
     'variables':

@@ -119,7 +119,7 @@
           # Check whether the plugin's origin URL is valid.
           'defines': ['CHECK_DOCUMENT_URL'],
           'dependencies': [
-            '<(DEPTH)/ppapi/ppapi.gyp:ppapi_cpp',
+            #'<(DEPTH)/ppapi/ppapi.gyp:ppapi_cpp',
             'media_cdm_adapter.gyp:cdmadapter',
             'clearkeycdm',
             'clearkeycdmadapter_resources',

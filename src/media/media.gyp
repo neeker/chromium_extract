@@ -1201,7 +1201,7 @@
         '../testing/gtest.gyp:gtest',
         '../third_party/libwebm/libwebm.gyp:libwebm',
         '../third_party/libyuv/libyuv.gyp:libyuv',
-        '../third_party/widevine/cdm/widevine_cdm.gyp:widevine_cdm_version_h',
+        #'../third_party/widevine/cdm/widevine_cdm.gyp:widevine_cdm_version_h',
         '../ui/gfx/gfx.gyp:gfx',
         '../ui/gfx/gfx.gyp:gfx_geometry',
         '../ui/gfx/gfx.gyp:gfx_test_support',
@@ -1939,7 +1939,7 @@
           ],
           'dependencies': [
             '../base/base.gyp:base',
-            '../third_party/widevine/cdm/widevine_cdm.gyp:widevine_cdm_version_h',
+            #'../third_party/widevine/cdm/widevine_cdm.gyp:widevine_cdm_version_h',
             '../ui/gl/gl.gyp:gl',
             '../url/url.gyp:url_lib',
             'media_android_jni_headers',
