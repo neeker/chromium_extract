@@ -70,10 +70,10 @@ class DirectOutputSurface : public cc::OutputSurface {
     gpu::SyncToken sync_token;
     gl->GenUnverifiedSyncTokenCHROMIUM(fence_sync, sync_token.GetData());
 
-    context_provider_->ContextSupport()->SignalSyncToken(
-        sync_token, base::Bind(&OutputSurface::OnSwapBuffersComplete,
-                               weak_ptr_factory_.GetWeakPtr()));
     client_->DidSwapBuffers();
+    context_provider_->ContextSupport()->SignalSyncToken(
+      sync_token, base::Bind(&OutputSurface::OnSwapBuffersComplete,
+      weak_ptr_factory_.GetWeakPtr()));
   }
 
  private:
