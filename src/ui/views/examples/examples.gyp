@@ -130,75 +130,75 @@
         }],
       ],
     },  # target_name: views_examples_exe
-    {
-      # GN version: //ui/views/examples:views_examples_with_content_lib
-      'target_name': 'views_examples_with_content_lib',
-      'type': '<(component)',
-      'dependencies': [
-        '../../../base/base.gyp:base',
-        '../../../content/content.gyp:content',
-        '../../../skia/skia.gyp:skia',
-        '../../../url/url.gyp:url_lib',
-        '../../events/events.gyp:events',
-        '../controls/webview/webview.gyp:webview',
-        '../views.gyp:views',
-        'views_examples_lib',
-      ],
-      'defines': [
-        'VIEWS_EXAMPLES_WITH_CONTENT_IMPLEMENTATION',
-      ],
-      'sources': [
-        # Note: sources list duplicated in GN build.
-        'examples_window_with_content.cc',
-        'examples_window_with_content.h',
-        'views_examples_with_content_export.h',
-        'webview_example.cc',
-        'webview_example.h',
-      ],
-    },  # target_name: views_examples_with_content_lib
-    {
-      # GN version: //ui/views/examples/views_examples_with_content_exe
-      'target_name': 'views_examples_with_content_exe',
-      'type': 'executable',
-      'dependencies': [
-        '../../../base/base.gyp:base',
-        '../../../content/content.gyp:content',
-        '../../views_content_client/views_content_client.gyp:views_content_client',
-        'views_examples_with_content_lib',
-      ],
-      'sources': [
-        # Note: sources list duplicated in GN build.
-        'examples_with_content_main_exe.cc',
-      ],
-      'conditions': [
-        ['OS=="win"', {
-          'link_settings': {
-            'libraries': [
-              '-limm32.lib',
-              '-loleacc.lib',
-            ]
-          },
-          'msvs_settings': {
-            'VCManifestTool': {
-              'AdditionalManifestFiles': [
-                'views_examples.exe.manifest',
-              ],
-            },
-            'VCLinkerTool': {
-              'SubSystem': '2',  # Set /SUBSYSTEM:WINDOWS
-            },
-          },
-          'dependencies': [
-            '../../../sandbox/sandbox.gyp:sandbox',
-            '../../../content/content.gyp:sandbox_helper_win',
-          ],
-        }],
-        ['OS=="win" and component!="shared_library" and win_use_allocator_shim==1', {
-          'dependencies': [
-            '<(DEPTH)/base/allocator/allocator.gyp:allocator',
-          ],
-        }],
-      ],
-    },  # target_name: views_examples_with_content_exe
+    #{
+    #  # GN version: //ui/views/examples:views_examples_with_content_lib
+    #  'target_name': 'views_examples_with_content_lib',
+    #  'type': '<(component)',
+    #  'dependencies': [
+    #    '../../../base/base.gyp:base',
+    #    #'../../../content/content.gyp:content',
+    #    '../../../skia/skia.gyp:skia',
+    #    '../../../url/url.gyp:url_lib',
+    #    '../../events/events.gyp:events',
+    #    '../controls/webview/webview.gyp:webview',
+    #    '../views.gyp:views',
+    #    'views_examples_lib',
+    #  ],
+    #  'defines': [
+    #    'VIEWS_EXAMPLES_WITH_CONTENT_IMPLEMENTATION',
+    #  ],
+    #  'sources': [
+    #    # Note: sources list duplicated in GN build.
+    #    'examples_window_with_content.cc',
+    #    'examples_window_with_content.h',
+    #    'views_examples_with_content_export.h',
+    #    'webview_example.cc',
+    #    'webview_example.h',
+    #  ],
+    #},  # target_name: views_examples_with_content_lib
+    #{
+    #  # GN version: //ui/views/examples/views_examples_with_content_exe
+    #  'target_name': 'views_examples_with_content_exe',
+    #  'type': 'executable',
+    #  'dependencies': [
+    #    '../../../base/base.gyp:base',
+    #    #'../../../content/content.gyp:content',
+    #    '../../views_content_client/views_content_client.gyp:views_content_client',
+    #    'views_examples_with_content_lib',
+    #  ],
+    #  'sources': [
+    #    # Note: sources list duplicated in GN build.
+    #    'examples_with_content_main_exe.cc',
+    #  ],
+    #  'conditions': [
+    #    ['OS=="win"', {
+    #      'link_settings': {
+    #        'libraries': [
+    #          '-limm32.lib',
+    #          '-loleacc.lib',
+    #        ]
+    #      },
+    #      'msvs_settings': {
+    #        'VCManifestTool': {
+    #          'AdditionalManifestFiles': [
+    #            'views_examples.exe.manifest',
+    #          ],
+    #        },
+    #        'VCLinkerTool': {
+    #          'SubSystem': '2',  # Set /SUBSYSTEM:WINDOWS
+    #        },
+    #      },
+    #      'dependencies': [
+    #        '../../../sandbox/sandbox.gyp:sandbox',
+    #        #'../../../content/content.gyp:sandbox_helper_win',
+    #      ],
+    #    }],
+    #    ['OS=="win" and component!="shared_library" and win_use_allocator_shim==1', {
+    #      'dependencies': [
+    #        '<(DEPTH)/base/allocator/allocator.gyp:allocator',
+    #      ],
+    #    }],
+    #  ],
+    #},  # target_name: views_examples_with_content_exe
   ],
 }

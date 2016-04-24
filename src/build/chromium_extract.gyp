@@ -24,9 +24,11 @@
         '../sql/sql.gyp:sql',
         '../ui/base/ui_base.gyp:ui_base',
         '../ui/views/views.gyp:views',
+        '../ui/views/examples/examples.gyp:views_examples_exe',
         '../ui/aura/aura.gyp:aura',
         '../ui/aura_extra/aura_extra.gyp:aura_extra',
         '../ui/gfx/gfx.gyp:gfx',
+        '../ui/app_list/resources/app_list_resources.gyp:app_list_resources'
       ],
     },
   ],
