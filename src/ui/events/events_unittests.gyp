@@ -18,7 +18,7 @@
         '<(DEPTH)/ipc/ipc.gyp:test_support_ipc',
         '<(DEPTH)/skia/skia.gyp:skia',
         '<(DEPTH)/testing/gtest.gyp:gtest',
-        '<(DEPTH)/third_party/mesa/mesa.gyp:osmesa',
+        #'<(DEPTH)/third_party/mesa/mesa.gyp:osmesa',
         '../gfx/gfx.gyp:gfx',
         '../gfx/gfx.gyp:gfx_geometry',
         '../gfx/gfx.gyp:gfx_test_support',

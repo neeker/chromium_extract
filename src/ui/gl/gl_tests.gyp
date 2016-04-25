@@ -25,7 +25,7 @@
         '<(DEPTH)/base/base.gyp:test_support_base',
         '<(DEPTH)/testing/gmock.gyp:gmock',
         '<(DEPTH)/testing/gtest.gyp:gtest',
-        '<(DEPTH)/third_party/mesa/mesa.gyp:osmesa',
+        #'<(DEPTH)/third_party/mesa/mesa.gyp:osmesa',
         '<(DEPTH)/ui/gfx/gfx.gyp:gfx',
         '<(DEPTH)/ui/gfx/gfx.gyp:gfx_geometry',
         '<(DEPTH)/ui/gl/gl.gyp:gl',
