@@ -19,13 +19,13 @@
           },
           'includes': [ '../../build/grit_action.gypi' ],
         },
-        {
-          'action_name': 'webui_resources',
-          'variables': {
-            'grit_grd_file': '../webui/resources/webui_resources.grd',
-          },
-          'includes': [ '../../build/grit_action.gypi' ],
-        },
+        #{
+        #  'action_name': 'webui_resources',
+        #  'variables': {
+        #    'grit_grd_file': '../webui/resources/webui_resources.grd',
+        #  },
+        #  'includes': [ '../../build/grit_action.gypi' ],
+        #},
         {
           'action_name': 'ui_unscaled_resources',
           'variables': {
@@ -53,9 +53,9 @@
           'variables': {
             'pak_inputs': [
               '<(SHARED_INTERMEDIATE_DIR)/ui/resources/ui_resources_100_percent.pak',
-              '<(SHARED_INTERMEDIATE_DIR)/ui/resources/webui_resources.pak',
-              '<(SHARED_INTERMEDIATE_DIR)/ui/strings/app_locale_settings_en-US.pak',
-              '<(SHARED_INTERMEDIATE_DIR)/ui/strings/ui_strings_en-US.pak',
+              #'<(SHARED_INTERMEDIATE_DIR)/ui/resources/webui_resources.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/ui/strings/app_locale_settings_zh-CN.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/ui/strings/ui_strings_zh-CN.pak',
             ],
             'pak_output': '<(PRODUCT_DIR)/ui_test.pak',
             'conditions': [
