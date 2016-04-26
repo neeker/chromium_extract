@@ -406,7 +406,9 @@ SkColor GetAuraColor(NativeTheme::ColorId color_id,
       return kThrobberLightColor;
 
     case NativeTheme::kColorId_MdTextButtonEnabledColor:
+      return kEnabledMenuItemForegroundColor;
     case NativeTheme::kColorId_MdTextButtonDisabledColor:
+      return kDisabledMenuItemForegroundColor;
     case NativeTheme::kColorId_NumColors:
       break;
   }
