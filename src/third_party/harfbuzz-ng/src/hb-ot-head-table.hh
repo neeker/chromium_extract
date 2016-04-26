@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright © 2010  Red Hat, Inc.
  * Copyright © 2012  Google, Inc.
  *
