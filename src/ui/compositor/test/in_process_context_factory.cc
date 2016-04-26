@@ -48,7 +48,9 @@ class DirectOutputSurface : public cc::OutputSurface {
       const scoped_refptr<cc::ContextProvider>& context_provider,
       const scoped_refptr<cc::ContextProvider>& worker_context_provider)
       : cc::OutputSurface(context_provider, worker_context_provider),
-        weak_ptr_factory_(this) {}
+        weak_ptr_factory_(this) {
+    capabilities_.flipped_output_surface = true;
+  }
 
   ~DirectOutputSurface() override {}
 
