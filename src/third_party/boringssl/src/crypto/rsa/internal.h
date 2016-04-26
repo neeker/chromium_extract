@@ -1,4 +1,4 @@
-﻿/* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
+/* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
  * This package is an SSL implementation written
