@@ -1,7 +1,15 @@
-chromium基础库抽取包
+chromium基本运行时库
 =========================
 
-## 基础库说明
+**修订说明**
+
+ - 2016年4月26日 痞子飞猪<13317312768@qq.com> 从chromium49.0.2623.112抽取。
+
+## 运行时库说明
+
+抽取包仅包含base、net、cc、ui及其基本所需的第三方库。
+
+时间仓促有多余的在所难免见谅！
 
 ### base
 
@@ -16,23 +24,29 @@ chromium基础库抽取包
 
 基础的网络操作工具函数库。
 
-### brotli 
+### ui
+
+基础的跨平台界面库。
+
+### 第三方库
+
+#### brotli 
 
 无损压缩算法，压缩数据使用LZ77算法(实现变种)。
 
-### sfntly
+#### sfntly
 
 是一个字体工具包，可用于使用、编辑和创建基于 SFNT (http://en.wikipedia.org/wiki/Sfnt) 的字体。
 
-### skia
+#### skia
 
 2D向量图形处理函数库，包含字型、座标转换，以及点阵图都有高效能且简洁的表现。
 
-### modp_b64
+#### modp_b64
 
 BASE64编解码库。
 
-### harfbuzz-ng
+#### harfbuzz-ng
 
 Harfbuzz是一个OpenType的构图引擎[](http://www.freedesktop.org/wiki/Software/HarfBuzz)。
 
@@ -41,55 +55,59 @@ Harfbuzz是一个OpenType的构图引擎[](http://www.freedesktop.org/wiki/Softw
 而新的目前还处于比较活跃的开发状态的这个代码树，在整个代码的结构上面与前面有着非常大的区别，
 为了区分新的这个称之为harfbuzz-ng。
 
-### gfx
+#### gfx
 
 Chromium专用的图形和渲染相关的助手代码。
 
-### breakpad
+#### breakpad
 
 专门用于崩溃后处理的库。
 
-### boringssl
+#### boringssl
 
 OpenSSL的一个分支（具体还不清楚有什么优化或不同？）
 
-### url_lib
+#### url_lib
 
 URL处理库
 
-### crypto
+#### crypto
 
 加解密相关库。
 
-### sdch
+#### sdch
 
 http的sdch压缩客户端实现库。
 
-### sql
+#### sql
 
 基于SQLite3的封装库。
 
-### testing
+#### testing
 
 单元测试相关的工具代码（gtest）。
 
-### v8
+#### v8
 
 V8引擎库。
 
-### angle
+_暂时保留_
+
+#### angle
 
 一个跨操作系统使用一套API来访问不同的3D引擎。包括 OpenGL ES 2.0 、OpenGL ES 3.0、Direct3D9、Direct3D11。
 
-### smhasher
+_chromium采用动态库的方式加载_
+
+#### smhasher
 
 一种非加密型哈希函数，适用于一般的哈希检索操作，具体见百科说明：
 
 [](https://zh.wikipedia.org/zh/Murmur%E5%93%88%E5%B8%8C)
 
-### mesa
+#### mesa
 
-3D离屏渲染接口。
+_已去掉了仅保留GL与EGL头文件引用_
 
 Mesa 3D是一个在MIT许可证下开放源代码的三维计算机图形库，以开源形式实现了OpenGL的应用程序接口。
 
@@ -105,8 +123,7 @@ OpenGL的高效实现一般依赖于显示设备厂商提供的硬件，而Mesa 
 
 [](https://zh.wikipedia.org/wiki/Mesa_3D)
 
-
-### khronos
+#### khronos
 
 包含EGL、OpenGL ES2、OpenGL ES3的头文件。
 
@@ -130,11 +147,13 @@ OpenGL的高效实现一般依赖于显示设备厂商提供的硬件，而Mesa 
     ninja -C out\Debug_x64 chromium_extract
     ninja -C out\Release_x64 chromium_extract
 
+**编译示例**
 
+    ninja -C out\Debug views_example_exe
 
+**示例截图**
 
-
-
+![](doc/snapshot1.png)
 
 
 
