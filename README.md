@@ -137,6 +137,13 @@ OpenGL的高效实现一般依赖于显示设备厂商提供的硬件，而Mesa 
 2. Windows SDK 8.1或[10](https://developer.microsoft.com/en-US/windows/downloads/windows-10-sdk)
 2. python2.7
 
+**环境变量**
+
+_只有设置了如下的系统环境变量后才能使用GYP产生VS2013的工程文件（用于在VS2013中打开调试）_
+
+    GYP_GENERATORS=msvs-ninja,ninja
+    GYP_MSVS_VERSION=2013
+
 **执行命令**
 
     cd src
@@ -146,6 +153,7 @@ OpenGL的高效实现一般依赖于显示设备厂商提供的硬件，而Mesa 
     ninja -C out\Release chromium_extract
     ninja -C out\Debug_x64 chromium_extract
     ninja -C out\Release_x64 chromium_extract
+
 
 **编译示例**
 
