@@ -7,3 +7,4 @@
 *.suo
 /src/out
 /src/build/ipch
+*.vcxproj.user
