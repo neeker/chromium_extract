@@ -67,7 +67,7 @@ class SQLTestBase : public testing::Test {
   void SetUp() override;
   void TearDown() override;
 
- private:
+ protected:
   base::ScopedTempDir temp_dir_;
   sql::Connection db_;
 

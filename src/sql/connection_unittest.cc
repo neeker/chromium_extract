@@ -1473,4 +1473,53 @@ TEST_F(SQLConnectionTest, GetAppropriateMmapSize) {
 }
 #endif
 
+static const char kTestSecretKey[] = "secretkey";
+
+class SQLConnectionSecretOpenTest : public sql::SQLTestBase {
+public:
+  void SetUp() override {
+    // Any macro histograms which fire before the recorder is initialized cannot
+    // be tested.  So this needs to be ahead of Open().
+    base::StatisticsRecorder::Initialize();
+    ASSERT_TRUE(temp_dir_.CreateUniqueTempDir());
+
+    ASSERT_TRUE(db_.Open(db_path(), kTestSecretKey));
+  }
+
+  // Handle errors by blowing away the database.
+  void RazeErrorCallback(int expected_error, int error, sql::Statement* stmt) {
+    EXPECT_EQ(expected_error, error);
+    db().RazeAndClose();
+  }
+
+  void SecretKeyErrorCallback(int expected_error, int error, sql::Statement* stmt) {
+    EXPECT_EQ(expected_error, error);
+  }
+
+};
+
+TEST_F(SQLConnectionSecretOpenTest, Execute) {
+  ASSERT_TRUE(db().Execute("CREATE TABLE foo (a, b)"));
+  EXPECT_EQ(SQLITE_OK, db().GetErrorCode());
+}
+
+TEST_F(SQLConnectionSecretOpenTest, ReOpen) {
+  ASSERT_TRUE(db().Execute("CREATE TABLE foo (a, b)"));
+  db().Close();
+  db().set_error_callback(base::Bind(
+    &SQLConnectionSecretOpenTest::SecretKeyErrorCallback,
+    base::Unretained(this), SQLITE_NOTADB));
+  
+  ASSERT_FALSE(db().Open(db_path()));
+  ASSERT_FALSE(db().Open(db_path(), "123"));
+
+  db().reset_error_callback();
+
+  ASSERT_TRUE(db().Open(db_path(), kTestSecretKey));
+
+  ASSERT_TRUE(db().Execute("select count(*) from foo"));
+  EXPECT_EQ(SQLITE_OK, db().GetErrorCode());
+}
+
+
 }  // namespace sql

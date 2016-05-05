@@ -433,16 +433,36 @@ bool Connection::Open(const base::FilePath& path) {
     }
   }
 
-  return OpenInternal(AsUTF8ForSQL(path), RETRY_ON_POISON);
+  return OpenInternal(AsUTF8ForSQL(path), NULL, 0, RETRY_ON_POISON);
 }
+
+bool Connection::Open(const base::FilePath& path, const std::string &secretkey) {
+  if (!histogram_tag_.empty()) {
+    int64_t size_64 = 0;
+    if (base::GetFileSize(path, &size_64)) {
+      size_t sample = static_cast<size_t>(size_64 / 1024);
+      std::string full_histogram_name = "Sqlite.SizeKB." + histogram_tag_;
+      base::HistogramBase* histogram =
+        base::Histogram::FactoryGet(
+        full_histogram_name, 1, 1000000, 50,
+        base::HistogramBase::kUmaTargetedHistogramFlag);
+      if (histogram)
+        histogram->Add(sample);
+      UMA_HISTOGRAM_COUNTS("Sqlite.SizeKB", sample);
+    }
+  }
+
+  return OpenInternal(AsUTF8ForSQL(path), (const uint8_t*)secretkey.data(), secretkey.length(), RETRY_ON_POISON);
+}
+
 
 bool Connection::OpenInMemory() {
   in_memory_ = true;
-  return OpenInternal(":memory:", NO_RETRY);
+  return OpenInternal(":memory:", NULL, 0, NO_RETRY);
 }
 
 bool Connection::OpenTemporary() {
-  return OpenInternal("", NO_RETRY);
+  return OpenInternal("", NULL, 0, NO_RETRY);
 }
 
 void Connection::CloseInternal(bool forced) {
@@ -1617,7 +1637,9 @@ const char* Connection::GetErrorMessage() const {
 }
 
 bool Connection::OpenInternal(const std::string& file_name,
-                              Connection::Retry retry_flag) {
+  const uint8_t *secretkey, 
+  size_t keylen, 
+  Connection::Retry retry_flag) {
   AssertIOAllowed();
 
   if (db_) {
@@ -1678,8 +1700,18 @@ bool Connection::OpenInternal(const std::string& file_name,
     Close();
 
     if (was_poisoned && retry_flag == RETRY_ON_POISON)
-      return OpenInternal(file_name, NO_RETRY);
+      return OpenInternal(file_name, secretkey, keylen, NO_RETRY);
     return false;
+  }
+
+  if (secretkey && !!keylen) {
+    if (SQLITE_OK != (err = sqlite3_key(db_, secretkey, keylen))) {
+      err = sqlite3_extended_errcode(db_);
+      UMA_HISTOGRAM_SPARSE_SLOWLY("Sqlite.KeyFailure", err);
+      OnSqliteError(err, NULL, "-- sqlite3_key()");
+      Close();
+      return false;
+    }
   }
 
   // TODO(shess): OS_WIN support?
@@ -1761,6 +1793,11 @@ bool Connection::OpenInternal(const std::string& file_name,
   // secure_delete.
   ignore_result(Execute("PRAGMA journal_mode = TRUNCATE"));
 
+  if (this->GetErrorCode() == SQLITE_NOTADB) {
+    Close();
+    return false;
+  }
+
   const base::TimeDelta kBusyTimeout =
     base::TimeDelta::FromSeconds(kBusyTimeoutSeconds);
 
@@ -1785,7 +1822,7 @@ bool Connection::OpenInternal(const std::string& file_name,
     bool was_poisoned = poisoned_;
     Close();
     if (was_poisoned && retry_flag == RETRY_ON_POISON)
-      return OpenInternal(file_name, NO_RETRY);
+      return OpenInternal(file_name, secretkey, keylen, NO_RETRY);
     return false;
   }
 

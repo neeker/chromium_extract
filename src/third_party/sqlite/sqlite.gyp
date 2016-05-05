@@ -162,6 +162,11 @@
           'msvs_disabled_warnings': [
             4244, 4267,
           ],
+          'direct_dependent_settings':{
+            'defines': [
+              'SQLITE_HAS_CODEC',
+            ],
+          },
           'conditions': [
             ['OS == "win" and component == "shared_library"', {
               'defines': ['SQLITE_API=__declspec(dllexport)'],

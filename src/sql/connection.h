@@ -247,6 +247,8 @@ class SQL_EXPORT Connection {
   // file could be opened. You can call this or OpenInMemory.
   bool Open(const base::FilePath& path) WARN_UNUSED_RESULT;
 
+  bool Open(const base::FilePath& path, const std::string &secretkey) WARN_UNUSED_RESULT;
+
   // Initializes the SQL connection for a temporary in-memory database. There
   // will be no associated file on disk, and the initial database will be
   // empty. You can call this or Open.
@@ -522,7 +524,7 @@ class SQL_EXPORT Connection {
     NO_RETRY = 0,
     RETRY_ON_POISON
   };
-  bool OpenInternal(const std::string& file_name, Retry retry_flag);
+  bool OpenInternal(const std::string& file_name, const uint8_t *secretkey, size_t keylen, Retry retry_flag);
 
   // Internal close function used by Close() and RazeAndClose().
   // |forced| indicates that orderly-shutdown checks should not apply.
