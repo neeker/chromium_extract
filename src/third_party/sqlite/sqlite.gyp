@@ -152,6 +152,7 @@
           },
           'include_dirs': [
             'amalgamation',
+            'sqlcipher',
           ],
           'dependencies': [
             '../icu/icu.gyp:icui18n',
