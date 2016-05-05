@@ -17,7 +17,13 @@
         # don't accidentally get added to another CL that you are editing.
         #
         # Example:
+        #×®ÊµÏÖ¿â
+        '../testing/gmock.gyp:gmock',
+        #µ¥Ôª²âÊÔ¿â
+        '../testing/gtest.gyp:gtest',
+        #ÓïÑÔ»ù´¡¿â
         '../base/base.gyp:base',
+        #ÓïÑÔ»ù´¡¿â(i18nÀ©Õ¹)
         '../base/base.gyp:base_i18n',
         '../net/net.gyp:net',
         '../net/net.gyp:http_server',

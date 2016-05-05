@@ -137,6 +137,9 @@
             'amalgamation/sqlite3.h',
             'amalgamation/sqlite3.c',
           ],
+          'defines':[
+            'SQLITE_HAS_CODEC',
+          ],
           'variables': {
             'clang_warning_flags': [
               # sqlite contains a few functions that are unused, at least on
@@ -153,6 +156,7 @@
           'dependencies': [
             '../icu/icu.gyp:icui18n',
             '../icu/icu.gyp:icuuc',
+            '../boringssl/boringssl.gyp:boringssl',
           ],
           'msvs_disabled_warnings': [
             4244, 4267,
