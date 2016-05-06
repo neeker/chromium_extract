@@ -21,6 +21,8 @@
         '../testing/gmock.gyp:gmock',
         #单元测试库
         '../testing/gtest.gyp:gtest',
+        #内存管理
+        '../base/allocator/allocator.gyp:allocator',
         #语言基础库
         '../base/base.gyp:base',
         #语言基础库(i18n扩展)
