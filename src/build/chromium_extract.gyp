@@ -7,36 +7,41 @@
       'target_name': 'chromium_extract',
       'type': 'none',
       'dependencies': [
-        # This file is intended to be locally modified. List the targets you use
-        # regularly. The generated some.sln will contains projects for only
-        # those targets and the targets they are transitively dependent on. This
-        # can result in a solution that loads and unloads faster in Visual
-        # Studio.
-        #
-        # Tip: Create a dummy CL to hold your local edits to this file, so they
-        # don't accidentally get added to another CL that you are editing.
-        #
-        # Example:
-        #桩实现库
+        #桩实现库（goolge gmock）
         '../testing/gmock.gyp:gmock',
-        #单元测试库
+        #单元测试库（google gtest）
         '../testing/gtest.gyp:gtest',
         #内存管理
         '../base/allocator/allocator.gyp:allocator',
         #语言基础库
         '../base/base.gyp:base',
-        #语言基础库(i18n扩展)
+        #语言基础库（i18n）
         '../base/base.gyp:base_i18n',
+        #网络库
         '../net/net.gyp:net',
+        #http服务器实现库
         '../net/net.gyp:http_server',
+        #SQLite封装库
         '../sql/sql.gyp:sql',
+        #UI基础库
         '../ui/base/ui_base.gyp:ui_base',
+        #UI视图组件库
         '../ui/views/views.gyp:views',
+        #UI视图组件示例
         '../ui/views/examples/examples.gyp:views_examples_exe',
+        #UI皮肤库（google aura）
         '../ui/aura/aura.gyp:aura',
         '../ui/aura_extra/aura_extra.gyp:aura_extra',
+        #UI绘制库（google gfx）
         '../ui/gfx/gfx.gyp:gfx',
-        '../ui/app_list/resources/app_list_resources.gyp:app_list_resources'
+        #UI资源库
+        '../ui/app_list/resources/app_list_resources.gyp:app_list_resources',
+        #加密库工具（依赖third_party/boringssl，一个OpenSSL变种，提升了速度）
+        '../crypto/crypto.gyp:crypto',
+        #boringssl库（openssl替代）
+        '../third_party/boringssl/boringssl.gyp:boringssl',
+        #打印库
+        '../printing/printing.gyp:printing',
       ],
     },
   ],
