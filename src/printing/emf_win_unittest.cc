@@ -26,6 +26,8 @@ namespace printing {
 
 namespace {
 
+const static wchar_t kTestPrinterName[] = L"Microsoft Print to PDF";
+
 // This test is automatically disabled if no printer named "UnitTest Printer" is
 // available.
 class EmfPrintingTest : public testing::Test, public PrintingContext::Delegate {
@@ -33,7 +35,7 @@ class EmfPrintingTest : public testing::Test, public PrintingContext::Delegate {
   typedef testing::Test Parent;
   static bool IsTestCaseDisabled() {
     // It is assumed this printer is a HP Color LaserJet 4550 PCL or 4700.
-    HDC hdc = CreateDC(L"WINSPOOL", L"UnitTest Printer", NULL, NULL);
+    HDC hdc = CreateDC(L"WINSPOOL", kTestPrinterName, NULL, NULL);
     if (!hdc)
       return true;
     DeleteDC(hdc);
@@ -85,7 +87,7 @@ TEST_F(EmfPrintingTest, Enumerate) {
   PrintSettings settings;
 
   // My test case is a HP Color LaserJet 4550 PCL.
-  settings.set_device_name(L"UnitTest Printer");
+  settings.set_device_name(kTestPrinterName);
 
   // Initialize it.
   scoped_ptr<PrintingContext> context(PrintingContext::Create(this));
