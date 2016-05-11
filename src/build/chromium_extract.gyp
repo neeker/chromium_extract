@@ -21,6 +21,8 @@
         '../net/net.gyp:net',
         #http服务器实现库
         '../net/net.gyp:http_server',
+        #SQLite（加上了SQLCipher实现）
+        '../third_party/sqlite/sqlite.gyp:sqlite',
         #SQLite封装库
         '../sql/sql.gyp:sql',
         #UI基础库
