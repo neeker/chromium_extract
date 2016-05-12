@@ -150,7 +150,7 @@ class BASE_EXPORT TimeDelta {
   }
 
   // Returns true if the time delta is the maximum time delta.
-  bool is_max() const { return delta_ == std::numeric_limits<int64_t>::max(); }
+  bool is_max() const { return delta_ == (std::numeric_limits<int64_t>::max)(); }
 
 #if defined(OS_POSIX)
   struct timespec ToTimeSpec() const;
@@ -305,7 +305,7 @@ class TimeBase {
   }
 
   // Returns true if this object represents the maximum time.
-  bool is_max() const { return us_ == std::numeric_limits<int64_t>::max(); }
+  bool is_max() const { return us_ == (std::numeric_limits<int64_t>::max)(); }
 
   // For serializing only. Use FromInternalValue() to reconstitute. Please don't
   // use this and do arithmetic on it, as it is more error prone than using the
@@ -579,21 +579,21 @@ class BASE_EXPORT Time : public time_internal::TimeBase<Time> {
 
 // static
 inline TimeDelta TimeDelta::FromDays(int days) {
-  if (days == std::numeric_limits<int>::max())
+  if (days == (std::numeric_limits<int>::max)())
     return Max();
   return TimeDelta(days * Time::kMicrosecondsPerDay);
 }
 
 // static
 inline TimeDelta TimeDelta::FromHours(int hours) {
-  if (hours == std::numeric_limits<int>::max())
+  if (hours == (std::numeric_limits<int>::max)())
     return Max();
   return TimeDelta(hours * Time::kMicrosecondsPerHour);
 }
 
 // static
 inline TimeDelta TimeDelta::FromMinutes(int minutes) {
-  if (minutes == std::numeric_limits<int>::max())
+  if (minutes == (std::numeric_limits<int>::max)())
     return Max();
   return TimeDelta(minutes * Time::kMicrosecondsPerMinute);
 }
@@ -625,7 +625,7 @@ inline TimeDelta TimeDelta::FromMicroseconds(int64_t us) {
 
 // static
 inline TimeDelta TimeDelta::FromDouble(double value) {
-  double max_magnitude = std::numeric_limits<int64_t>::max();
+  double max_magnitude = (std::numeric_limits<int64_t>::max)();
   TimeDelta delta = TimeDelta(static_cast<int64_t>(value));
   if (value > max_magnitude)
     delta = Max();
