@@ -206,18 +206,18 @@ CheckedMul(T x, T y, RangeConstraint* validity) {
   } else if (x > 0) {
     if (y > 0)
       *validity =
-          x <= std::numeric_limits<T>::max() / y ? RANGE_VALID : RANGE_OVERFLOW;
+          x <= (std::numeric_limits<T>::max)() / y ? RANGE_VALID : RANGE_OVERFLOW;
     else
-      *validity = y >= std::numeric_limits<T>::min() / x ? RANGE_VALID
+      *validity = y >= (std::numeric_limits<T>::min)() / x ? RANGE_VALID
                                                          : RANGE_UNDERFLOW;
 
   } else {
     if (y > 0)
-      *validity = x >= std::numeric_limits<T>::min() / y ? RANGE_VALID
+      *validity = x >= (std::numeric_limits<T>::min)() / y ? RANGE_VALID
                                                          : RANGE_UNDERFLOW;
     else
       *validity =
-          y >= std::numeric_limits<T>::max() / x ? RANGE_VALID : RANGE_OVERFLOW;
+          y >= (std::numeric_limits<T>::max)() / x ? RANGE_VALID : RANGE_OVERFLOW;
   }
 
   return x * y;
@@ -245,7 +245,7 @@ T CheckedDiv(T x,
   if (std::numeric_limits<T>::is_signed && x == std::numeric_limits<T>::min() &&
       y == static_cast<T>(-1)) {
     *validity = RANGE_OVERFLOW;
-    return std::numeric_limits<T>::min();
+    return (std::numeric_limits<T>::min)();
   }
 
   *validity = RANGE_VALID;
@@ -298,7 +298,7 @@ typename std::enable_if<std::numeric_limits<T>::is_integer &&
                         T>::type
 CheckedAbs(T value, RangeConstraint* validity) {
   *validity =
-      value != std::numeric_limits<T>::min() ? RANGE_VALID : RANGE_OVERFLOW;
+      value != (std::numeric_limits<T>::min)() ? RANGE_VALID : RANGE_OVERFLOW;
   return static_cast<T>(std::abs(value));
 }
 
