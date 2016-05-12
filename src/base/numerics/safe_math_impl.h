@@ -229,7 +229,7 @@ typename std::enable_if<std::numeric_limits<T>::is_integer &&
                             (sizeof(T) * 2 > sizeof(uintmax_t)),
                         T>::type
 CheckedMul(T x, T y, RangeConstraint* validity) {
-  *validity = (y == 0 || x <= std::numeric_limits<T>::max() / y)
+  *validity = (y == 0 || x <= (std::numeric_limits<T>::max)() / y)
                   ? RANGE_VALID
                   : RANGE_OVERFLOW;
   return x * y;
@@ -242,7 +242,7 @@ T CheckedDiv(T x,
              RangeConstraint* validity,
              typename std::enable_if<std::numeric_limits<T>::is_integer,
                                      int>::type = 0) {
-  if (std::numeric_limits<T>::is_signed && x == std::numeric_limits<T>::min() &&
+  if (std::numeric_limits<T>::is_signed && x == (std::numeric_limits<T>::min)() &&
       y == static_cast<T>(-1)) {
     *validity = RANGE_OVERFLOW;
     return (std::numeric_limits<T>::min)();
@@ -276,7 +276,7 @@ typename std::enable_if<std::numeric_limits<T>::is_integer &&
                         T>::type
 CheckedNeg(T value, RangeConstraint* validity) {
   *validity =
-      value != std::numeric_limits<T>::min() ? RANGE_VALID : RANGE_OVERFLOW;
+      value != (std::numeric_limits<T>::min)() ? RANGE_VALID : RANGE_OVERFLOW;
   // The negation of signed min is min, so catch that one.
   return -value;
 }
@@ -318,8 +318,8 @@ typename std::enable_if<std::numeric_limits<T>::is_integer &&
                         typename UnsignedIntegerForSize<T>::type>::type
 CheckedUnsignedAbs(T value) {
   typedef typename UnsignedIntegerForSize<T>::type UnsignedT;
-  return value == std::numeric_limits<T>::min()
-             ? static_cast<UnsignedT>(std::numeric_limits<T>::max()) + 1
+  return value == (std::numeric_limits<T>::min)()
+             ? static_cast<UnsignedT>((std::numeric_limits<T>::max)()) + 1
              : static_cast<UnsignedT>(std::abs(value));
 }
 
@@ -480,8 +480,8 @@ class CheckedNumericState<T, NUMERIC_FLOATING> {
       : value_(static_cast<T>(rhs.value())) {}
 
   RangeConstraint validity() const {
-    return GetRangeConstraint(value_ <= std::numeric_limits<T>::max(),
-                              value_ >= -std::numeric_limits<T>::max());
+    return GetRangeConstraint(value_ <= (std::numeric_limits<T>::max)(),
+                              value_ >= -(std::numeric_limits<T>::max)());
   }
   T value() const { return value_; }
 };

@@ -625,7 +625,7 @@ inline TimeDelta TimeDelta::FromMicroseconds(int64_t us) {
 
 // static
 inline TimeDelta TimeDelta::FromDouble(double value) {
-  double max_magnitude = (std::numeric_limits<int64_t>::max)();
+  double max_magnitude = (double)(std::numeric_limits<int64_t>::max)();
   TimeDelta delta = TimeDelta(static_cast<int64_t>(value));
   if (value > max_magnitude)
     delta = Max();

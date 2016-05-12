@@ -199,8 +199,8 @@ struct DstRangeRelationToSrcRangeImpl<Dst,
                                       INTEGER_REPRESENTATION_SIGNED,
                                       NUMERIC_RANGE_NOT_CONTAINED> {
   static RangeConstraint Check(Src value) {
-    return GetRangeConstraint((value <= NarrowingRange<Dst, Src>::max()),
-                              (value >= NarrowingRange<Dst, Src>::min()));
+    return GetRangeConstraint((value <= (NarrowingRange<Dst, Src>::max)()),
+                              (value >= (NarrowingRange<Dst, Src>::min)()));
   }
 };
 
@@ -212,7 +212,7 @@ struct DstRangeRelationToSrcRangeImpl<Dst,
                                       INTEGER_REPRESENTATION_UNSIGNED,
                                       NUMERIC_RANGE_NOT_CONTAINED> {
   static RangeConstraint Check(Src value) {
-    return GetRangeConstraint(value <= NarrowingRange<Dst, Src>::max(), true);
+    return GetRangeConstraint(value <= (NarrowingRange<Dst, Src>::max)(), true);
   }
 };
 
@@ -227,7 +227,7 @@ struct DstRangeRelationToSrcRangeImpl<Dst,
     return sizeof(Dst) > sizeof(Src)
                ? RANGE_VALID
                : GetRangeConstraint(
-                     value <= static_cast<Src>(NarrowingRange<Dst, Src>::max()),
+                     value <= static_cast<Src>((NarrowingRange<Dst, Src>::max)()),
                      true);
   }
 };
@@ -244,7 +244,7 @@ struct DstRangeRelationToSrcRangeImpl<Dst,
     return (MaxExponent<Dst>::value >= MaxExponent<Src>::value)
                ? GetRangeConstraint(true, value >= static_cast<Src>(0))
                : GetRangeConstraint(
-                     value <= static_cast<Src>(NarrowingRange<Dst, Src>::max()),
+                     value <= static_cast<Src>((NarrowingRange<Dst, Src>::max)()),
                      value >= static_cast<Src>(0));
   }
 };
