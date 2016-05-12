@@ -137,7 +137,7 @@ struct NarrowingRange {
   typedef typename std::numeric_limits<Src> SrcLimits;
   typedef typename std::numeric_limits<Dst> DstLimits;
 
-  static Dst max() {
+  (static Dst max)() {
     // The following logic avoids warnings where the max function is
     // instantiated with invalid values for a bit shift (even though
     // such a function can never be called).
@@ -151,12 +151,12 @@ struct NarrowingRange {
     // We use UINTMAX_C below to avoid compiler warnings about shifting floating
     // points. Since it's a compile time calculation, it shouldn't have any
     // performance impact.
-    return DstLimits::max() - static_cast<Dst>((UINTMAX_C(1) << shift) - 1);
+    return (DstLimits::max)() - static_cast<Dst>((UINTMAX_C(1) << shift) - 1);
   }
 
-  static Dst min() {
-    return std::numeric_limits<Dst>::is_iec559 ? -DstLimits::max()
-                                               : DstLimits::min();
+  (static Dst min)() {
+    return std::numeric_limits<Dst>::is_iec559 ? -(DstLimits::max)()
+                                               : (DstLimits::min)();
   }
 };
 
