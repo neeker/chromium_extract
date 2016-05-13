@@ -134,7 +134,7 @@ OpenGL的高效实现一般依赖于显示设备厂商提供的硬件，而Mesa 
 **环境要求**
 
 1. VS2013
-2. Windows SDK 8.1或[10](https://developer.microsoft.com/en-US/windows/downloads/windows-10-sdk)
+2. [Windows SDK10](https://developer.microsoft.com/en-US/windows/downloads/windows-10-sdk)
 2. python2.7
 
 **环境变量**
