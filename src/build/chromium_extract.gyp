@@ -49,6 +49,7 @@
         #错误报告上传库（google breakpad）
         '../breakpad/breakpad.gyp:breakpad_sender',
         #压缩与解压
+        '../third_party/zlib/zlib.gyp:*',
         '../third_party/zlib/google/zip.gyp:*',
       ],
     },
