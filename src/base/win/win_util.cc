@@ -43,6 +43,8 @@
 #include "base/win/scoped_handle.h"
 #include "base/win/scoped_propvariant.h"
 #include "base/win/windows_version.h"
+#include "base/native_library.h"
+#include "base/files/file_path.h"
 
 namespace base {
 namespace win {
@@ -524,6 +526,40 @@ bool IsTabletDevice(std::string* reason) {
   return is_tablet && is_tablet_pc;
 }
 
+namespace {
+
+
+class SHGetKnownFolderPathHelper {
+public:
+  typedef HRESULT(*SHGetKnownFolderPathFn)(
+    _In_ REFKNOWNFOLDERID rfid,
+    _In_ DWORD /* KNOWN_FOLDER_FLAG */ dwFlags,
+    _In_opt_ HANDLE hToken,
+    _Outptr_ PWSTR *ppszPath);
+
+  SHGetKnownFolderPathHelper() : fn_(NULL) {
+    base::NativeLibraryLoadError library_load_err;
+    base::NativeLibrary library = base::LoadNativeLibrary(base::FilePath::FromUTF16Unsafe(L"SHELL32.DLL"), &library_load_err);
+    fn_ = GetFunctionPointerFromNativeLibrary(library, "SHGetKnownFolderPath");
+  }
+  ~SHGetKnownFolderPathHelper() {}
+
+  HRESULT Run(_In_ REFKNOWNFOLDERID rfid,
+    _In_ DWORD /* KNOWN_FOLDER_FLAG */ dwFlags,
+    _In_opt_ HANDLE hToken,
+    _Outptr_ PWSTR *ppszPath
+    ) {
+    if (!fn_) ERROR_INVALID_FUNCTION;
+    return ((SHGetKnownFolderPathFn)fn_)(rfid, dwFlags, hToken, ppszPath);
+  }
+
+private:
+  void *fn_;
+};
+
+base::LazyInstance<SHGetKnownFolderPathHelper>::Leaky gSHGetKnownFolderPathHelper = LAZY_INSTANCE_INITIALIZER;
+}
+
 bool DisplayVirtualKeyboard() {
   if (GetVersion() < VERSION_WIN8)
     return false;
@@ -585,7 +621,7 @@ bool DisplayVirtualKeyboard() {
         DCHECK(!common_program_files_path.empty());
       } else {
         ScopedCoMem<wchar_t> common_program_files;
-        if (FAILED(SHGetKnownFolderPath(FOLDERID_ProgramFilesCommon, 0, NULL,
+        if (FAILED(gSHGetKnownFolderPathHelper.Get().Run(FOLDERID_ProgramFilesCommon, 0, NULL,
                                         &common_program_files))) {
           return false;
         }

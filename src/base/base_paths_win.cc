@@ -12,6 +12,8 @@
 #include "base/strings/utf_string_conversions.h"
 #include "base/win/scoped_co_mem.h"
 #include "base/win/windows_version.h"
+#include "base/lazy_instance.h"
+#include "base/native_library.h"
 
 // http://blogs.msdn.com/oldnewthing/archive/2004/10/25/247180.aspx
 extern "C" IMAGE_DOS_HEADER __ImageBase;
@@ -19,6 +21,41 @@ extern "C" IMAGE_DOS_HEADER __ImageBase;
 using base::FilePath;
 
 namespace base {
+
+namespace {
+
+
+class SHGetKnownFolderPathHelper {
+public:
+  typedef HRESULT(*SHGetKnownFolderPathFn)(
+    _In_ REFKNOWNFOLDERID rfid,
+    _In_ DWORD /* KNOWN_FOLDER_FLAG */ dwFlags,
+    _In_opt_ HANDLE hToken,
+    _Outptr_ PWSTR *ppszPath);
+
+  SHGetKnownFolderPathHelper() : fn_(NULL) {
+    base::NativeLibraryLoadError library_load_err;
+    base::NativeLibrary library = base::LoadNativeLibrary(base::FilePath::FromUTF16Unsafe(L"SHELL32.DLL"), &library_load_err);
+    fn_ = GetFunctionPointerFromNativeLibrary(library, "SHGetKnownFolderPath");
+  }
+  ~SHGetKnownFolderPathHelper() {}
+
+  HRESULT Run(_In_ REFKNOWNFOLDERID rfid,
+    _In_ DWORD /* KNOWN_FOLDER_FLAG */ dwFlags,
+    _In_opt_ HANDLE hToken,
+    _Outptr_ PWSTR *ppszPath
+    ) {
+    if (!fn_) ERROR_INVALID_FUNCTION;
+    return ((SHGetKnownFolderPathFn)fn_)(rfid, dwFlags, hToken, ppszPath);
+  }
+
+private:
+  void *fn_;
+};
+
+base::LazyInstance<SHGetKnownFolderPathHelper>::Leaky gSHGetKnownFolderPathHelper = LAZY_INSTANCE_INITIALIZER;
+}
+
 
 bool PathProviderWin(int key, FilePath* result) {
   // We need to go compute the value. It would be nice to support paths with
@@ -139,7 +176,7 @@ bool PathProviderWin(int key, FilePath* result) {
         return false;
 
       base::win::ScopedCoMem<wchar_t> path_buf;
-      if (FAILED(SHGetKnownFolderPath(FOLDERID_ApplicationShortcuts, 0, NULL,
+      if (FAILED(gSHGetKnownFolderPathHelper.Get().Run(FOLDERID_ApplicationShortcuts, 0, NULL,
                                       &path_buf)))
         return false;
 
