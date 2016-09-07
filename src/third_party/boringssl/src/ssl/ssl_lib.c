@@ -998,7 +998,7 @@ int SSL_get_wfd(const SSL *ssl) {
 }
 
 int SSL_set_fd(SSL *ssl, int fd) {
-  BIO *bio = BIO_new(BIO_s_fd());
+  BIO *bio = BIO_new(BIO_s_socket());
   if (bio == NULL) {
     OPENSSL_PUT_ERROR(SSL, ERR_R_BUF_LIB);
     return 0;
@@ -1012,7 +1012,7 @@ int SSL_set_wfd(SSL *ssl, int fd) {
   if (ssl->rbio == NULL ||
       BIO_method_type(ssl->rbio) != BIO_TYPE_FD ||
       BIO_get_fd(ssl->rbio, NULL) != fd) {
-    BIO *bio = BIO_new(BIO_s_fd());
+    BIO *bio = BIO_new(BIO_s_socket());
     if (bio == NULL) {
       OPENSSL_PUT_ERROR(SSL, ERR_R_BUF_LIB);
       return 0;
@@ -1029,7 +1029,7 @@ int SSL_set_wfd(SSL *ssl, int fd) {
 int SSL_set_rfd(SSL *ssl, int fd) {
   if (ssl->wbio == NULL || BIO_method_type(ssl->wbio) != BIO_TYPE_FD ||
       BIO_get_fd(ssl->wbio, NULL) != fd) {
-    BIO *bio = BIO_new(BIO_s_fd());
+    BIO *bio = BIO_new(BIO_s_socket());
     if (bio == NULL) {
       OPENSSL_PUT_ERROR(SSL, ERR_R_BUF_LIB);
       return 0;
