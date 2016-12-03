@@ -74,8 +74,12 @@ bool GetAppOutputInternal(const StringPiece16& cl,
     return false;
   }
 
-  FilePath::StringType writable_command_line_string;
-  writable_command_line_string.assign(cl.data(), cl.size());
+  CommandLine wrapper_command(CommandLine::NO_PROGRAM);
+  wrapper_command.ParseFromString(string16(cl.data(), cl.length()));
+
+  string16 writable_appname = wrapper_command.GetProgram().value();
+  string16 writable_cmdline = wrapper_command.GetCommandLineString();
+  writable_cmdline.insert(0, L" ");
 
   STARTUPINFO start_info = {};
 
@@ -92,8 +96,8 @@ bool GetAppOutputInternal(const StringPiece16& cl,
 
   // Create the child process.
   PROCESS_INFORMATION temp_process_info = {};
-  if (!CreateProcess(NULL,
-                     &writable_command_line_string[0],
+  if (!CreateProcess(&writable_appname[0],
+                     &writable_cmdline[0],
                      NULL, NULL,
                      TRUE,  // Handles are inherited.
                      0, NULL, NULL, &start_info, &temp_process_info)) {
@@ -283,7 +287,13 @@ Process LaunchProcess(const string16& cmdline,
 
   PROCESS_INFORMATION temp_process_info = {};
 
+  CommandLine wrapper_command(CommandLine::NO_PROGRAM);
+  wrapper_command.ParseFromString(cmdline);
+
+  string16 writable_appname = wrapper_command.GetProgram().value();
   string16 writable_cmdline(cmdline);
+  writable_cmdline.insert(0, L" ");
+
   if (options.as_user) {
     flags |= CREATE_UNICODE_ENVIRONMENT;
     void* enviroment_block = NULL;
@@ -294,7 +304,7 @@ Process LaunchProcess(const string16& cmdline,
     }
 
     BOOL launched =
-        CreateProcessAsUser(options.as_user, L"",
+        CreateProcessAsUser(options.as_user, &writable_appname[0],
                             &writable_cmdline[0],
                             NULL, NULL, inherit_handles, flags,
                             enviroment_block, NULL, startup_info,
@@ -306,7 +316,7 @@ Process LaunchProcess(const string16& cmdline,
       return Process();
     }
   } else {
-    if (!CreateProcess(L"",
+    if (!CreateProcess(&writable_appname[0],
                        &writable_cmdline[0], NULL, NULL,
                        inherit_handles, flags, NULL, NULL,
                        startup_info, &temp_process_info)) {
