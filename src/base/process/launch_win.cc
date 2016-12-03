@@ -294,7 +294,7 @@ Process LaunchProcess(const string16& cmdline,
     }
 
     BOOL launched =
-        CreateProcessAsUser(options.as_user, NULL,
+        CreateProcessAsUser(options.as_user, L"",
                             &writable_cmdline[0],
                             NULL, NULL, inherit_handles, flags,
                             enviroment_block, NULL, startup_info,
@@ -306,7 +306,7 @@ Process LaunchProcess(const string16& cmdline,
       return Process();
     }
   } else {
-    if (!CreateProcess(NULL,
+    if (!CreateProcess(L"",
                        &writable_cmdline[0], NULL, NULL,
                        inherit_handles, flags, NULL, NULL,
                        startup_info, &temp_process_info)) {
