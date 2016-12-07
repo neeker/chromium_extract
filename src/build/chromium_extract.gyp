@@ -44,13 +44,19 @@
         '../third_party/boringssl/boringssl.gyp:boringssl',
         #打印库
         '../printing/printing.gyp:printing',
-        #错误报告库转储处理库（google breakpad）
-        '../breakpad/breakpad.gyp:breakpad_handler',
-        #错误报告上传库（google breakpad）
-        '../breakpad/breakpad.gyp:breakpad_sender',
         #压缩与解压
         '../third_party/zlib/zlib.gyp:*',
         '../third_party/zlib/google/zip.gyp:*',
+      ],
+      'conditions': [
+        ['OS=="win"', {
+          'dependencies': [
+            #错误报告库转储处理库（google breakpad）
+            '../breakpad/breakpad.gyp:breakpad_handler',
+            #错误报告上传库（google breakpad）
+            '../breakpad/breakpad.gyp:breakpad_sender',
+          ],
+        }]
       ],
     },
   ],
