@@ -311,7 +311,6 @@
         # osmesa GL implementation is used on linux.
         ['OS=="linux"', {
           'dependencies': [
-            '<(DEPTH)/third_party/mesa/mesa.gyp:osmesa',
           ],
         }],
         ['OS=="linux" and use_allocator!="none"', {
