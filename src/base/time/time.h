@@ -150,7 +150,11 @@ class BASE_EXPORT TimeDelta {
   }
 
   // Returns true if the time delta is the maximum time delta.
+#if defined(WIN32)
   bool is_max() const { return delta_ == (std::numeric_limits<int64_t>::max)(); }
+#else
+  bool is_max() const { return delta_ == std::numeric_limits<int64_t>::max(); }
+#endif
 
 #if defined(OS_POSIX)
   struct timespec ToTimeSpec() const;
@@ -305,7 +309,11 @@ class TimeBase {
   }
 
   // Returns true if this object represents the maximum time.
+#if defined(WIN32)
   bool is_max() const { return us_ == (std::numeric_limits<int64_t>::max)(); }
+#else
+  bool is_max() const { return us_ == std::numeric_limits<int64_t>::max(); }
+#endif
 
   // For serializing only. Use FromInternalValue() to reconstitute. Please don't
   // use this and do arithmetic on it, as it is more error prone than using the
@@ -579,21 +587,33 @@ class BASE_EXPORT Time : public time_internal::TimeBase<Time> {
 
 // static
 inline TimeDelta TimeDelta::FromDays(int days) {
+#if defined(WIN32)
   if (days == (std::numeric_limits<int>::max)())
+#else
+  if (days == std::numeric_limits<int>::max())
+#endif
     return Max();
   return TimeDelta(days * Time::kMicrosecondsPerDay);
 }
 
 // static
 inline TimeDelta TimeDelta::FromHours(int hours) {
+#if defined(WIN32)
   if (hours == (std::numeric_limits<int>::max)())
+#else
+  if (hours == std::numeric_limits<int>::max())
+#endif
     return Max();
   return TimeDelta(hours * Time::kMicrosecondsPerHour);
 }
 
 // static
 inline TimeDelta TimeDelta::FromMinutes(int minutes) {
+#if defined(WIN32)
   if (minutes == (std::numeric_limits<int>::max)())
+#else
+  if (minutes == std::numeric_limits<int>::max())
+#endif
     return Max();
   return TimeDelta(minutes * Time::kMicrosecondsPerMinute);
 }
@@ -625,7 +645,11 @@ inline TimeDelta TimeDelta::FromMicroseconds(int64_t us) {
 
 // static
 inline TimeDelta TimeDelta::FromDouble(double value) {
+#if defined(WIN32)
   double max_magnitude = (double)(std::numeric_limits<int64_t>::max)();
+#else
+  double max_magnitude = (double)std::numeric_limits<int64_t>::max();
+#endif
   TimeDelta delta = TimeDelta(static_cast<int64_t>(value));
   if (value > max_magnitude)
     delta = Max();

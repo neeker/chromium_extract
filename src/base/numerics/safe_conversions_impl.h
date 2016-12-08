@@ -137,7 +137,11 @@ struct NarrowingRange {
   typedef typename std::numeric_limits<Src> SrcLimits;
   typedef typename std::numeric_limits<Dst> DstLimits;
 
+#if defined(WIN32)
   (static Dst max)() {
+#else
+  static Dst max() {
+#endif
     // The following logic avoids warnings where the max function is
     // instantiated with invalid values for a bit shift (even though
     // such a function can never be called).
@@ -151,13 +155,24 @@ struct NarrowingRange {
     // We use UINTMAX_C below to avoid compiler warnings about shifting floating
     // points. Since it's a compile time calculation, it shouldn't have any
     // performance impact.
+#if defined(WIN32)
     return (DstLimits::max)() - static_cast<Dst>((UINTMAX_C(1) << shift) - 1);
+#else
+    return DstLimits::max() - static_cast<Dst>((UINTMAX_C(1) << shift) - 1);
+#endif
   }
 
+#if defined(WIN32)
   (static Dst min)() {
     return std::numeric_limits<Dst>::is_iec559 ? -(DstLimits::max)()
                                                : (DstLimits::min)();
   }
+#else
+  static Dst min() {
+    return std::numeric_limits<Dst>::is_iec559 ? -DstLimits::max()
+      : DstLimits::min();
+  }
+#endif
 };
 
 template <
@@ -199,8 +214,13 @@ struct DstRangeRelationToSrcRangeImpl<Dst,
                                       INTEGER_REPRESENTATION_SIGNED,
                                       NUMERIC_RANGE_NOT_CONTAINED> {
   static RangeConstraint Check(Src value) {
+#if defined(WIN32)
     return GetRangeConstraint((value <= (NarrowingRange<Dst, Src>::max)()),
                               (value >= (NarrowingRange<Dst, Src>::min)()));
+#else
+    return GetRangeConstraint((value <= NarrowingRange<Dst, Src>::max()),
+                              (value >= NarrowingRange<Dst, Src>::min()));
+#endif
   }
 };
 
@@ -212,7 +232,11 @@ struct DstRangeRelationToSrcRangeImpl<Dst,
                                       INTEGER_REPRESENTATION_UNSIGNED,
                                       NUMERIC_RANGE_NOT_CONTAINED> {
   static RangeConstraint Check(Src value) {
+#if defined(WIN32)
     return GetRangeConstraint(value <= (NarrowingRange<Dst, Src>::max)(), true);
+#else
+    return GetRangeConstraint(value <= NarrowingRange<Dst, Src>::max(), true);
+#endif
   }
 };
 
@@ -224,11 +248,19 @@ struct DstRangeRelationToSrcRangeImpl<Dst,
                                       INTEGER_REPRESENTATION_UNSIGNED,
                                       NUMERIC_RANGE_NOT_CONTAINED> {
   static RangeConstraint Check(Src value) {
+#if defined(WIN32)
     return sizeof(Dst) > sizeof(Src)
                ? RANGE_VALID
                : GetRangeConstraint(
                      value <= static_cast<Src>((NarrowingRange<Dst, Src>::max)()),
                      true);
+#else
+    return sizeof(Dst) > sizeof(Src)
+      ? RANGE_VALID
+      : GetRangeConstraint(
+      value <= static_cast<Src>(NarrowingRange<Dst, Src>::max()),
+      true);
+#endif
   }
 };
 
@@ -241,11 +273,19 @@ struct DstRangeRelationToSrcRangeImpl<Dst,
                                       INTEGER_REPRESENTATION_SIGNED,
                                       NUMERIC_RANGE_NOT_CONTAINED> {
   static RangeConstraint Check(Src value) {
+#if defined(WIN32)
     return (MaxExponent<Dst>::value >= MaxExponent<Src>::value)
                ? GetRangeConstraint(true, value >= static_cast<Src>(0))
                : GetRangeConstraint(
                      value <= static_cast<Src>((NarrowingRange<Dst, Src>::max)()),
                      value >= static_cast<Src>(0));
+#else
+    return (MaxExponent<Dst>::value >= MaxExponent<Src>::value)
+      ? GetRangeConstraint(true, value >= static_cast<Src>(0))
+      : GetRangeConstraint(
+      value <= static_cast<Src>(NarrowingRange<Dst, Src>::max()),
+      value >= static_cast<Src>(0));
+#endif
   }
 };
 

@@ -174,23 +174,44 @@ _只有设置了如下的系统环境变量后才能使用GYP产生VS2013的工�
 2. gcc/g++/make
 3. depot_tools
 4. gyp
+4. llvm
 
 **环境变量**
 
+```
 DEPOT_TOOLS_UPDATE=0
 GYP_GENERATORS=ninja
 GYP_DEFINES=python_ver=2.7
+```
 
+
+_如果目标为arm平台则如此设置_
+
+```
+#GYP_DEFINES=python_ver=2.7 target_arch=arm arm_version=7
+```
 
 **编译**
 
-1. 生成编译文件
+1. 安装依赖
+
+cd src && ./build/install-build-deps.sh
+
+2. 下载lvvm
+
+
+```
+wget https://commondatastorage.googleapis.com/chromium-browser-clang/Linux_x64/clang-255169-1.tgz
+tar xzvf clang-255169-1.tgz chromium_extract/third_party/llvm-build/Release+Asserts
+```
+
+3. 生成编译文件
 
 ```bash
 cd src
 python build/gyp_chromium build/chromium_extract.gyp
 ```
-2. 再开始编译
+3. 再开始编译
 
 ```bash
 ninja -C out\Debug chromium_extract

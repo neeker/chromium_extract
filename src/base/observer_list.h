@@ -134,7 +134,11 @@ ObserverListBase<ObserverType>::Iterator::Iterator(
     ObserverListBase<ObserverType>* list)
     : list_(list->AsWeakPtr()),
       index_(0),
+#if defined(WIN32)
       max_index_(list->type_ == NOTIFY_ALL ? (std::numeric_limits<size_t>::max)()
+#else
+      max_index_(list->type_ == NOTIFY_ALL ? std::numeric_limits<size_t>::max()
+#endif
                                            : list->observers_.size()) {
   ++list_->notify_depth_;
 }
