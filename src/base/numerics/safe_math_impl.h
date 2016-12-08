@@ -200,6 +200,7 @@ typename std::enable_if<std::numeric_limits<T>::is_integer &&
                         T>::type
 CheckedMul(T x, T y, RangeConstraint* validity) {
   // If either side is zero then the result will be zero.
+#if defined(WIN32)
   if (!x || !y) {
     return RANGE_VALID;
 
@@ -219,7 +220,29 @@ CheckedMul(T x, T y, RangeConstraint* validity) {
       *validity =
           y >= (std::numeric_limits<T>::max)() / x ? RANGE_VALID : RANGE_OVERFLOW;
   }
+#else
 
+  if (!x || !y) {
+    return RANGE_VALID;
+
+  } else if (x > 0) {
+    if (y > 0)
+      *validity =
+      x <= std::numeric_limits<T>::max() / y ? RANGE_VALID : RANGE_OVERFLOW;
+    else
+      *validity = y >= std::numeric_limits<T>::min() / x ? RANGE_VALID
+      : RANGE_UNDERFLOW;
+
+  } else {
+    if (y > 0)
+      *validity = x >= std::numeric_limits<T>::min() / y ? RANGE_VALID
+      : RANGE_UNDERFLOW;
+    else
+      *validity =
+      y >= std::numeric_limits<T>::max() / x ? RANGE_VALID : RANGE_OVERFLOW;
+  }
+
+#endif
   return x * y;
 }
 
@@ -229,9 +252,15 @@ typename std::enable_if<std::numeric_limits<T>::is_integer &&
                             (sizeof(T) * 2 > sizeof(uintmax_t)),
                         T>::type
 CheckedMul(T x, T y, RangeConstraint* validity) {
+#if defined(WIN32)
   *validity = (y == 0 || x <= (std::numeric_limits<T>::max)() / y)
                   ? RANGE_VALID
                   : RANGE_OVERFLOW;
+#else
+  *validity = (y == 0 || x <= std::numeric_limits<T>::max() / y)
+    ? RANGE_VALID
+    : RANGE_OVERFLOW;
+#endif
   return x * y;
 }
 
@@ -242,11 +271,19 @@ T CheckedDiv(T x,
              RangeConstraint* validity,
              typename std::enable_if<std::numeric_limits<T>::is_integer,
                                      int>::type = 0) {
+#if defined(WIN32)
   if (std::numeric_limits<T>::is_signed && x == (std::numeric_limits<T>::min)() &&
       y == static_cast<T>(-1)) {
     *validity = RANGE_OVERFLOW;
     return (std::numeric_limits<T>::min)();
   }
+#else
+  if (std::numeric_limits<T>::is_signed && x == std::numeric_limits<T>::min() &&
+    y == static_cast<T>(-1)) {
+    *validity = RANGE_OVERFLOW;
+    return std::numeric_limits<T>::min();
+  }
+#endif
 
   *validity = RANGE_VALID;
   return x / y;
@@ -275,8 +312,13 @@ typename std::enable_if<std::numeric_limits<T>::is_integer &&
                             std::numeric_limits<T>::is_signed,
                         T>::type
 CheckedNeg(T value, RangeConstraint* validity) {
+#if defined(WIN32)
   *validity =
       value != (std::numeric_limits<T>::min)() ? RANGE_VALID : RANGE_OVERFLOW;
+#else
+  *validity =
+    value != std::numeric_limits<T>::min() ? RANGE_VALID : RANGE_OVERFLOW;
+#endif
   // The negation of signed min is min, so catch that one.
   return -value;
 }
@@ -297,8 +339,13 @@ typename std::enable_if<std::numeric_limits<T>::is_integer &&
                             std::numeric_limits<T>::is_signed,
                         T>::type
 CheckedAbs(T value, RangeConstraint* validity) {
+#if defined(WIN32)
   *validity =
       value != (std::numeric_limits<T>::min)() ? RANGE_VALID : RANGE_OVERFLOW;
+#else
+  *validity =
+    value != std::numeric_limits<T>::min() ? RANGE_VALID : RANGE_OVERFLOW;
+#endif
   return static_cast<T>(std::abs(value));
 }
 
@@ -318,9 +365,15 @@ typename std::enable_if<std::numeric_limits<T>::is_integer &&
                         typename UnsignedIntegerForSize<T>::type>::type
 CheckedUnsignedAbs(T value) {
   typedef typename UnsignedIntegerForSize<T>::type UnsignedT;
+#if defined(WIN32)
   return value == (std::numeric_limits<T>::min)()
              ? static_cast<UnsignedT>((std::numeric_limits<T>::max)()) + 1
              : static_cast<UnsignedT>(std::abs(value));
+#else
+  return value == std::numeric_limits<T>::min()
+    ? static_cast<UnsignedT>(std::numeric_limits<T>::max()) + 1
+    : static_cast<UnsignedT>(std::abs(value));
+#endif
 }
 
 template <typename T>
@@ -480,8 +533,13 @@ class CheckedNumericState<T, NUMERIC_FLOATING> {
       : value_(static_cast<T>(rhs.value())) {}
 
   RangeConstraint validity() const {
+#if defined(WIN32)
     return GetRangeConstraint(value_ <= (std::numeric_limits<T>::max)(),
                               value_ >= -(std::numeric_limits<T>::max)());
+#else
+    return GetRangeConstraint(value_ <= std::numeric_limits<T>::max(),
+      value_ >= -std::numeric_limits<T>::max());
+#endif
   }
   T value() const { return value_; }
 };

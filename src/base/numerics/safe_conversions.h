@@ -84,11 +84,18 @@ inline Dst saturated_cast(Src value) {
       return static_cast<Dst>(value);
 
     case internal::RANGE_UNDERFLOW:
+#if defined(WIN32)
       return (std::numeric_limits<Dst>::min)();
+#else
+      return std::numeric_limits<Dst>::min();
+#endif
 
     case internal::RANGE_OVERFLOW:
+#if defined(WIN32)
       return (std::numeric_limits<Dst>::max)();
-
+#else
+      return std::numeric_limits<Dst>::max();
+#endif
     // Should fail only on attempting to assign NaN to a saturated integer.
     case internal::RANGE_INVALID:
       return NaNHandler::template HandleNaN<Dst>();

@@ -48,8 +48,11 @@ template <typename D, typename S> struct SkTOutOfRange_LT_MinD {
     static bool apply(S s) {
         typedef SkTHasMoreDigits<S, D> precondition;
         static_assert(precondition::value, "SkTOutOfRange_LT_MinD__minS_gt_minD");
-
+#if defined(WIN32)
         return s < static_cast<S>((std::numeric_limits<D>::min)());
+#else
+        return s < static_cast<S>(std::numeric_limits<D>::min());
+#endif
     }
 };
 
@@ -71,8 +74,11 @@ template <typename D, typename S> struct SkTOutOfRange_GT_MaxD {
     static bool apply(S s) {
         typedef SkTHasMoreDigits<S, D> precondition;
         static_assert(precondition::value, "SkTOutOfRange_GT_MaxD__maxS_lt_maxD");
-
+#if defined(WIN32)
         return s > static_cast<S>((std::numeric_limits<D>::max)());
+#else
+        return s > static_cast<S>(std::numeric_limits<D>::max());
+#endif
     }
 };
 
