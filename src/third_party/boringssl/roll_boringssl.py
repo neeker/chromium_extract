@@ -26,8 +26,8 @@ sys.path.append(os.path.join(BORINGSSL_SRC_PATH, 'util'))
 import generate_build_files
 
 GENERATED_FILES = [
-    'boringssl.gypi',
-    'boringssl_tests.gypi',
+    'BUILD.generated.gni',
+    'BUILD.generated_tests.gni',
     'err_data.c',
 ]
 
@@ -75,7 +75,7 @@ def main():
 
   head = RevParse(BORINGSSL_SRC_PATH, 'HEAD')
   if head == commit:
-    print 'BoringSSL already up-to-date.'
+    print 'BoringSSL already up to date.'
     return 0
 
   print 'Rolling BoringSSL from %s to %s...' % (head, commit)
@@ -97,7 +97,7 @@ def main():
   subprocess.check_call(['python',
                          os.path.join(BORINGSSL_SRC_PATH, 'util',
                                       'generate_build_files.py'),
-                         'gyp'],
+                         'gn'],
                         cwd=BORINGSSL_PATH)
 
   # Commit everything.
