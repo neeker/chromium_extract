@@ -5,7 +5,6 @@
 .fpu	neon
 .code	32
 .globl	gcm_init_v8
-.hidden	gcm_init_v8
 .type	gcm_init_v8,%function
 .align	4
 gcm_init_v8:
@@ -56,7 +55,6 @@ gcm_init_v8:
 	bx	lr
 .size	gcm_init_v8,.-gcm_init_v8
 .globl	gcm_gmult_v8
-.hidden	gcm_gmult_v8
 .type	gcm_gmult_v8,%function
 .align	4
 gcm_gmult_v8:
@@ -98,7 +96,6 @@ gcm_gmult_v8:
 	bx	lr
 .size	gcm_gmult_v8,.-gcm_gmult_v8
 .globl	gcm_ghash_v8
-.hidden	gcm_ghash_v8
 .type	gcm_ghash_v8,%function
 .align	4
 gcm_ghash_v8:

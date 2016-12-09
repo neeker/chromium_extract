@@ -21,6 +21,20 @@
       'msvs_disabled_warnings': [ 4267, ],
     },
     {
+      'target_name': 'boringssl_asn1_test',
+      'type': 'executable',
+      'dependencies': [
+        'boringssl.gyp:boringssl',
+      ],
+      'sources': [
+        'src/crypto/asn1/asn1_test.cc',
+        '<@(boringssl_test_support_sources)',
+      ],
+      # TODO(davidben): Fix size_t truncations in BoringSSL.
+      # https://crbug.com/429039
+      'msvs_disabled_warnings': [ 4267, ],
+    },
+    {
       'target_name': 'boringssl_base64_test',
       'type': 'executable',
       'dependencies': [
@@ -520,6 +534,7 @@
     'boringssl_test_targets': [
       'boringssl_aead_test',
       'boringssl_aes_test',
+      'boringssl_asn1_test',
       'boringssl_base64_test',
       'boringssl_bio_test',
       'boringssl_bn_test',

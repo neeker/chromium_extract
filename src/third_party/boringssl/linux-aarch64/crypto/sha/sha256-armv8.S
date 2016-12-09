@@ -5,7 +5,6 @@
 
 
 .globl	sha256_block_data_order
-.hidden	sha256_block_data_order
 .type	sha256_block_data_order,%function
 .align	6
 sha256_block_data_order:
