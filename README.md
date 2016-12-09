@@ -188,14 +188,21 @@ GYP_DEFINES=python_ver=2.7
 _如果目标为arm平台则如此设置_
 
 ```
-#GYP_DEFINES=python_ver=2.7 target_arch=arm arm_version=7
+#GYP_DEFINES="python_ver=2.7 target_arch=arm arm_version=7"
 ```
+
+target_arch可以是x64
 
 **编译**
 
 1. 安装依赖
 
+```
 cd src && ./build/install-build-deps.sh
+sudo apt-get install gccgo-go
+src/third_party/boringssl
+python src/util/generate_build_files.py chromium
+```
 
 2. 下载lvvm
 
