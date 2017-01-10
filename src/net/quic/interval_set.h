@@ -346,8 +346,13 @@ template <typename T>
 Interval<T> IntervalSet<T>::SpanningInterval() const {
   Interval<T> result;
   if (!intervals_.empty()) {
+#if defined(OS_WIN)
+    result.SetMin((intervals_.begin()->min)());
+    result.SetMax((intervals_.rbegin()->max)());
+#else
     result.SetMin(intervals_.begin()->min());
     result.SetMax(intervals_.rbegin()->max());
+#endif
   }
   return result;
 }
@@ -370,7 +375,11 @@ void IntervalSet<T>::Add(const Interval<T>& interval) {
   typename Set::iterator begin = ins.first;
   if (begin != intervals_.begin())
     --begin;
+#if defined(OS_WIN)
+  const Interval<T> target_end((interval.max)(), (interval.max)());
+#else
   const Interval<T> target_end(interval.max(), interval.max());
+#endif
   const typename Set::iterator end = intervals_.upper_bound(target_end);
   Compact(begin, end);
 }
@@ -390,7 +399,11 @@ bool IntervalSet<T>::Equals(const IntervalSet& other) const {
                               j = other.intervals_.begin();
        i != intervals_.end(); ++i, ++j) {
     // Simple member-wise equality, since all intervals are non-empty.
+#if defined(OS_WIN)
+    if ((i->min)() != (j->min)() || (i->max)() != (j->max)())
+#else
     if (i->min() != j->min() || i->max() != j->max())
+#endif
       return false;
   }
   return true;
@@ -554,15 +567,27 @@ typename IntervalSet<T>::const_iterator IntervalSet<T>::Find(
 
 template <typename T>
 bool IntervalSet<T>::IsDisjoint(const Interval<T>& interval) const {
+#if defined(OS_WIN)
+  Interval<T> tmp((interval.min)(), (interval.min)());
+#else
   Interval<T> tmp(interval.min(), interval.min());
+#endif
   // Find the first interval with min() > interval.min()
   const_iterator it = intervals_.upper_bound(tmp);
+#if defined(OS_WIN)
+  if (it != intervals_.end() && (interval.max)() > (it->min)())
+#else
   if (it != intervals_.end() && interval.max() > it->min())
+#endif
     return false;
   if (it == intervals_.begin())
     return true;
   --it;
+#if defined(OS_WIN)
+  return (it->max)() <= (interval.min)();
+#else
   return it->max() <= interval.min();
+#endif
 }
 
 template <typename T>
@@ -605,6 +630,30 @@ bool IntervalSet<T>::FindNextIntersectingPairImpl(X* x,
   if ((*mine == x->intervals_.end()) || (*theirs == y.intervals_.end())) {
     return false;
   }
+#if defined(OS_WIN)
+  while (!(**mine).Intersects(**theirs)) {
+    const_iterator erase_first = *mine;
+    // Skip over intervals in 'mine' that don't reach 'theirs'.
+    while (*mine != x->intervals_.end() && ((**mine).max)() <= ((**theirs).min)()) {
+      ++(*mine);
+    }
+    on_hole(x, erase_first, *mine);
+    // We're done if the end of intervals_ is reached.
+    if (*mine == x->intervals_.end()) {
+      return false;
+    }
+    // Skip over intervals 'theirs' that don't reach 'mine'.
+    while (*theirs != y.intervals_.end() &&
+      ((**theirs).max)() <= ((**mine).min)()) {
+      ++(*theirs);
+    }
+    // If the end of other.intervals_ is reached, we're done.
+    if (*theirs == y.intervals_.end()) {
+      on_hole(x, *mine, x->intervals_.end());
+      return false;
+    }
+  }
+#else
   while (!(**mine).Intersects(**theirs)) {
     const_iterator erase_first = *mine;
     // Skip over intervals in 'mine' that don't reach 'theirs'.
@@ -627,6 +676,7 @@ bool IntervalSet<T>::FindNextIntersectingPairImpl(X* x,
       return false;
     }
   }
+#endif
   return true;
 }
 
@@ -773,6 +823,25 @@ void IntervalSet<T>::Compact(const typename Set::iterator& begin,
   typename Set::iterator it = begin;
   ++it;
   ++next;
+#if defined(OS_WIN)
+  while (it != end) {
+    ++next;
+    if ((prev->max)() >= (it->min)()) {
+      // Overlapping / coalesced range; merge the two intervals.
+      T min = (prev->min)();
+      T max = (std::max)((prev->max)(), (it->max)());
+      Interval<T> i(min, max);
+      intervals_.erase(prev);
+      intervals_.erase(it);
+      std::pair<typename Set::iterator, bool> ins = intervals_.insert(i);
+      DCHECK(ins.second);
+      prev = ins.first;
+    } else {
+      prev = it;
+    }
+    it = next;
+  }
+#else
   while (it != end) {
     ++next;
     if (prev->max() >= it->min()) {
@@ -790,6 +859,7 @@ void IntervalSet<T>::Compact(const typename Set::iterator& begin,
     }
     it = next;
   }
+#endif
 }
 
 template <typename T>
@@ -797,6 +867,15 @@ bool IntervalSet<T>::Valid() const {
   const_iterator prev = end();
   for (const_iterator it = begin(); it != end(); ++it) {
     // invalid or empty interval.
+#if defined(OS_WIN)
+  if ((it->min)() >= (it->max)())
+      return false;
+    // Not sorted, not disjoint, or adjacent.
+    if (prev != end() && (prev->max)() >= (it->min)())
+      return false;
+    prev = it;
+  }
+#else
     if (it->min() >= it->max())
       return false;
     // Not sorted, not disjoint, or adjacent.
@@ -804,6 +883,7 @@ bool IntervalSet<T>::Valid() const {
       return false;
     prev = it;
   }
+#endif
   return true;
 }
 
@@ -849,7 +929,11 @@ template <typename T>
 inline bool IntervalSet<T>::IntervalComparator::operator()(
     const Interval<T>& a,
     const Interval<T>& b) const {
+#if defined(OS_WIN)
+  return ((a.min)() < (b.min)() || ((a.min)() == (b.min)() && (a.max)() > (b.max)()));
+#else
   return (a.min() < b.min() || (a.min() == b.min() && a.max() > b.max()));
+#endif
 }
 
 }  // namespace net

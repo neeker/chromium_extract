@@ -104,8 +104,16 @@ class Interval {
   // max, the constructed object will represent the empty interval.
   Interval(const T& min, const T& max) : min_(min), max_(max) {}
 
+#if defined(OS_WIN)
+  (const T& min)() const { return min_; }
+#else
   const T& min() const { return min_; }
+#endif
+#if defined(OS_WIN)
+  (const T& max)() const { return max_; }
+#else
   const T& max() const { return max_; }
+#endif
   void SetMin(const T& t) { min_ = t; }
   void SetMax(const T& t) { max_ = t; }
 
@@ -117,27 +125,42 @@ class Interval {
   void Clear() { *this = {}; }
   void CopyFrom(const Interval& i) { *this = i; }
   bool Equals(const Interval& i) const { return *this == i; }
+#if defined(OS_WIN)
+  bool Empty() const { return (min)() >= (max)(); }
+#else
   bool Empty() const { return min() >= max(); }
+#endif
 
   // Returns the length of this interval. The value returned is zero if
   // IsEmpty() is true; otherwise the value returned is max() - min().
   const T Length() const { return (min_ >= max_ ? min_ : max_) - min_; }
 
   // Returns true iff t >= min() && t < max().
+#if defined(OS_WIN)
+  bool Contains(const T& t) const { return (min)() <= t && (max)() > t; }
+#else
   bool Contains(const T& t) const { return min() <= t && max() > t; }
-
+#endif
   // Returns true iff *this and i are non-empty, and *this includes i. "*this
   // includes i" means that for all t, if i.Contains(t) then this->Contains(t).
   // Note the unintuitive consequence of this definition: this method always
   // returns false when i is the empty interval.
   bool Contains(const Interval& i) const {
+#if defined(OS_WIN)
+    return !Empty() && !i.Empty() && (min)() <= i.(min)() && (max)() >= i.(max)();
+#else
     return !Empty() && !i.Empty() && min() <= i.min() && max() >= i.max();
+#endif
   }
 
   // Returns true iff there exists some point t for which this->Contains(t) &&
   // i.Contains(t) evaluates to true, i.e. if the intersection is non-empty.
   bool Intersects(const Interval& i) const {
+#if defined(OS_WIN)
+    return !Empty() && !i.Empty() && (min)() < (i.max)() && (max)() > (i.min)();
+#else
     return !Empty() && !i.Empty() && min() < i.max() && max() > i.min();
+#endif
   }
 
   // Returns true iff there exists some point t for which this->Contains(t) &&
@@ -185,7 +208,11 @@ class Interval {
       return true;  // All empties are equal.
     if (ae != be)
       return false;  // Empty cannot equal nonempty.
+#if defined(OS_WIN)
+    return (a.min)() == (b.min)() && (a.max)() == (b.max)();
+#else
     return a.min() == b.min() && a.max() == b.max();
+#endif
   }
 
   friend bool operator!=(const Interval& a, const Interval& b) {
@@ -201,11 +228,19 @@ class Interval {
   // particular, this comparator does not properly consider all empty intervals
   // equivalent. Bug b/9240050 has been created to track this.
   friend bool operator<(const Interval& a, const Interval& b) {
+#if defined(OS_WIN)
+    return (a.min)() < (b.min)() || ((a.min)() == (b.min)() && (a.max)() > (b.max)());
+#else
     return a.min() < b.min() || (a.min() == b.min() && a.max() > b.max());
+#endif
   }
 
   friend std::ostream& operator<<(std::ostream& out, const Interval& i) {
+#if defined(OS_WIN)
+    return out << "[" << (i.min)() << ", " << (i.max)() << ")";
+#else
     return out << "[" << i.min() << ", " << i.max() << ")";
+#endif
   }
 
  private:
@@ -221,7 +256,11 @@ bool Interval<T>::Intersects(const Interval& i, Interval* out) const {
   if (!Intersects(i))
     return false;
   if (out != nullptr) {
+#if defined(OS_WIN)
+    *out = Interval((std::max)((min)(), (i.min)()), (std::min)((max)(), (i.max)()));
+#else
     *out = Interval(std::max(min(), i.min()), std::min(max(), i.max()));
+#endif
   }
   return true;
 }
@@ -231,6 +270,16 @@ bool Interval<T>::IntersectWith(const Interval& i) {
   if (Empty())
     return false;
   bool modified = false;
+#if defined(OS_WIN)
+  if ((i.min)() > (min)()) {
+    SetMin((i.min)());
+    modified = true;
+  }
+  if ((i.max)() < (max)()) {
+    SetMax((i.max)());
+    modified = true;
+  }
+#else
   if (i.min() > min()) {
     SetMin(i.min());
     modified = true;
@@ -239,6 +288,7 @@ bool Interval<T>::IntersectWith(const Interval& i) {
     SetMax(i.max());
     modified = true;
   }
+#endif
   return modified;
 }
 
@@ -251,12 +301,25 @@ bool Interval<T>::SpanningUnion(const Interval& i) {
     return true;
   }
   bool modified = false;
+#if defined(OS_WIN)
+  if ((i.min)() < (min)()) {
+#else
   if (i.min() < min()) {
+#endif
+#if defined(OS_WIN)
+    SetMin((i.min)());
+#else
     SetMin(i.min());
+#endif
     modified = true;
   }
+#if defined(OS_WIN)
+  if ((i.max)() > (max)()) {
+    SetMax((i.max)());
+#else
   if (i.max() > max()) {
     SetMax(i.max());
+#endif
     modified = true;
   }
   return modified;
@@ -274,6 +337,38 @@ bool Interval<T>::Difference(const Interval& i,
     difference->push_back(new Interval(*this));
     return false;
   }
+#if defined(OS_WIN)
+  if ((min)() < (i.max)() && (min)() >= (i.min)() && (max)() > (i.max)()) {
+    //            [------ this ------)
+    // [------ i ------)
+    //                 [-- result ---)
+    difference->push_back(new Interval((i.max)(), (max)()));
+    return true;
+  }
+  if ((max)() > (i.min)() && (max)() <= (i.max)() && (min)() < (i.min)()) {
+    // [------ this ------)
+    //            [------ i ------)
+    // [- result -)
+    difference->push_back(new Interval((min)(), (i.min)()));
+    return true;
+  }
+  if ((min)() < (i.min)() && (max)() > (i.max)()) {
+    // [------- this --------)
+    //      [---- i ----)
+    // [ R1 )           [ R2 )
+    // There are two results: R1 and R2.
+    difference->push_back(new Interval((min)(), (i.min)()));
+    difference->push_back(new Interval((i.max)(), (max)()));
+    return true;
+  }
+  if ((min)() >= (i.min)() && (max)() <= (i.max)()) {
+    //   [--- this ---)
+    // [------ i --------)
+    // Intersection is <this>, so difference yields the empty interval.
+    // Nothing is appended to *difference.
+    return true;
+  }
+#else
   if (min() < i.max() && min() >= i.min() && max() > i.max()) {
     //            [------ this ------)
     // [------ i ------)
@@ -304,6 +399,7 @@ bool Interval<T>::Difference(const Interval& i,
     // Nothing is appended to *difference.
     return true;
   }
+#endif
   // No intersection. Append <this>.
   difference->push_back(new Interval(*this));
   return false;
@@ -322,6 +418,37 @@ bool Interval<T>::Difference(const Interval& i,
     *lo = *this;
     return false;
   }
+#if defined(OS_WIN)
+  if ((min)() < (i.max)() && (min)() >= (i.min)() && (max)() > (i.max)()) {
+    //            [------ this ------)
+    // [------ i ------)
+    //                 [-- result ---)
+    *hi = Interval((i.max)(), (max)());
+    return true;
+  }
+  if ((max)() > (i.min)() && (max)() <= (i.max)() && (min)() < (i.min)()) {
+    // [------ this ------)
+    //            [------ i ------)
+    // [- result -)
+    *lo = Interval((min)(), (i.min)());
+    return true;
+  }
+  if ((min)() < (i.min)() && (max)() > (i.max)()) {
+    // [------- this --------)
+    //      [---- i ----)
+    // [ R1 )           [ R2 )
+    // There are two results: R1 and R2.
+    *lo = Interval((min)(), (i.min)());
+    *hi = Interval((i.max)(), (max)());
+    return true;
+  }
+  if ((min)() >= (i.min)() && (max)() <= (i.max)()) {
+    //   [--- this ---)
+    // [------ i --------)
+    // Intersection is <this>, so difference yields the empty interval.
+    return true;
+  }
+#else
   if (min() < i.max() && min() >= i.min() && max() > i.max()) {
     //            [------ this ------)
     // [------ i ------)
@@ -351,6 +478,7 @@ bool Interval<T>::Difference(const Interval& i,
     // Intersection is <this>, so difference yields the empty interval.
     return true;
   }
+#endif
   *lo = *this;  // No intersection.
   return false;
 }
