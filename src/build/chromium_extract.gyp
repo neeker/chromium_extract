@@ -47,6 +47,7 @@
         #—πÀı”ÎΩ‚—π
         '../third_party/zlib/zlib.gyp:*',
         '../third_party/zlib/google/zip.gyp:*',
+        '../third_party/org.eclipse.paho.mqtt.embedded-c-1.0.0/paho.mqtt.gyp:*'
       ],
       'conditions': [
         ['OS=="win"', {
