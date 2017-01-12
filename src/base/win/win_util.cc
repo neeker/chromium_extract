@@ -113,7 +113,9 @@ const wchar_t kWindows8OSKRegPath[] =
 // Returns the current platform role. We use the PowerDeterminePlatformRoleEx
 // API for that.
 POWER_PLATFORM_ROLE GetPlatformRole() {
-  return PowerDeterminePlatformRoleEx(POWER_PLATFORM_ROLE_V2);
+  //TODO 强制设置为PlatformRoleWorkstation
+  return PlatformRoleWorkstation;
+  //return PowerDeterminePlatformRoleEx(POWER_PLATFORM_ROLE_V2);
 }
 
 // Uses the Windows 10 WRL API's to query the current system state. The API's
