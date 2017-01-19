@@ -74,10 +74,6 @@ public:
 
     int qos;
 
-    friend bool operator<(const SubscribeTopicItem &l, const SubscribeTopicItem &r) {
-      return l.topic_name < r.topic_name;
-    }
-
     bool operator==(const SubscribeTopicItem& o) {
       return topic_name.compare(o.topic_name) == 0;
     }
