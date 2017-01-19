@@ -1,4 +1,4 @@
-/*********************************************
+ï»¿/*********************************************
                    _ooOoo_
                   o8888888o
                   88" . "88
@@ -19,9 +19,9 @@
                    `=---='
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-           ·ğ×æ±£ÓÓ       ÓÀÎŞBUG
-           ĞÄÍâÎŞ·¨       ·¨ÍâÎŞĞÄ
-           Èı±¦µÜ×Ó       ·ÉÖíºêÔ¸
+           ä½›ç¥–ä¿ä½‘       æ°¸æ— BUG
+           å¿ƒå¤–æ— æ³•       æ³•å¤–æ— å¿ƒ
+           ä¸‰å®å¼Ÿå­       é£çŒªå®æ„¿
 *********************************************/
 
 
@@ -370,7 +370,7 @@ public:
       int rc = MQTTSerialize_ack(outbuf, 128, PUBREC, 0, msgid);
       return SendMQTTDataFrame(std::vector<char>(&outbuf[0], &outbuf[rc]));
     }
-    LOG(ERROR) << L"·şÎñ¶Ë·¢¹ıÀ´µÄMQTTÏûÏ¢µÄQos²ÎÊı´íÎó: Qos=" << qos;
+    LOG(ERROR) << L"æœåŠ¡ç«¯å‘è¿‡æ¥çš„MQTTæ¶ˆæ¯çš„Qoså‚æ•°é”™è¯¯: Qos=" << qos;
     return ChannelState::CHANNEL_DELETED;
   }
 
@@ -501,7 +501,7 @@ public:
     int granted_qos[10];
     int rc = MQTTDeserialize_suback(&submsgid, 10, &subcount, &granted_qos[0], (uint8_t*)&data[0], data.size());
     if (!rc) {
-      LOG(ERROR) << L"ÎŞ·¨½âÂëMQTT¶©ÔÄÓ¦´ğ°ü!";
+      LOG(ERROR) << L"æ— æ³•è§£ç MQTTè®¢é˜…åº”ç­”åŒ…!";
       return ChannelState::CHANNEL_DELETED;
     }
     for (int i = 0; i < subcount; i++) {
@@ -1096,7 +1096,7 @@ public:
 
   void OnTopicMessagePublished(uint16_t msgid, int qos) override {
     if (queued_publish_topics_.size() == 0) {
-      LOG(ERROR) << L"ÊÕµ½·¢²¼Íê³ÉÓ¦´ğ(QoS=" << qos << L"),µ«ÊÇ·¢ËÍ¶ÓÁĞÀïÃ»ÓĞÊı¾İ!!!";
+      LOG(ERROR) << L"æ”¶åˆ°å‘å¸ƒå®Œæˆåº”ç­”(QoS=" << qos << L"),ä½†æ˜¯å‘é€é˜Ÿåˆ—é‡Œæ²¡æœ‰æ•°æ®!!!";
       return;
     }
 
@@ -1108,22 +1108,22 @@ public:
       queued_publish_topics_.pop();
       observer_->OnPublishMessageFinalFinished(item->topic_name, item->pid());
     } else {
-      LOG(ERROR) << L"ÊÕµ½·¢²¼Íê³ÉÓ¦´ğ(QoS=" << qos << L"),µ«ÊÇ·¢ËÍ¶ÓÁĞÍ·ÏûÏ¢ID="
-        << item->msgid << L"ÓëÓ¦´øÏûÏ¢ID=" << msgid << L"²»Ò»ÖÂ!!!";
+      LOG(ERROR) << L"æ”¶åˆ°å‘å¸ƒå®Œæˆåº”ç­”(QoS=" << qos << L"),ä½†æ˜¯å‘é€é˜Ÿåˆ—å¤´æ¶ˆæ¯ID="
+        << item->msgid << L"ä¸åº”å¸¦æ¶ˆæ¯ID=" << msgid << L"ä¸ä¸€è‡´!!!";
     }
   }
 
   void OnTopicMessageServerReceived(uint16_t msgid, bool *handled) override {
     if (queued_publish_topics_.size() == 0) {
-      LOG(ERROR) << L"ÊÕµ½·¢²¼ÒÑ½ÓÊÕ(PUBLISH_REC, QoS=2),µ«ÊÇ·¢ËÍ¶ÓÁĞÀïÃ»ÓĞÊı¾İ!!!";
+      LOG(ERROR) << L"æ”¶åˆ°å‘å¸ƒå·²æ¥æ”¶(PUBLISH_REC, QoS=2),ä½†æ˜¯å‘é€é˜Ÿåˆ—é‡Œæ²¡æœ‰æ•°æ®!!!";
       return;
     }
     scoped_refptr<PublishTopicItem> item = queued_publish_topics_.front();
     if (item->msgid == msgid) {
       observer_->OnPublishMessageServerReceived(item->topic_name, item->pid(), handled);
     } else {
-      LOG(ERROR) << L"ÊÕµ½·¢²¼ÒÑ½ÓÊÕ(PUBLISH_REC, QoS=2),µ«ÊÇ·¢ËÍ¶ÓÁĞÍ·ÏûÏ¢ID="
-        << item->msgid << L"ÓëÓ¦´øÏûÏ¢ID=" << msgid << L"²»Ò»ÖÂ!!!";
+      LOG(ERROR) << L"æ”¶åˆ°å‘å¸ƒå·²æ¥æ”¶(PUBLISH_REC, QoS=2),ä½†æ˜¯å‘é€é˜Ÿåˆ—å¤´æ¶ˆæ¯ID="
+        << item->msgid << L"ä¸åº”å¸¦æ¶ˆæ¯ID=" << msgid << L"ä¸ä¸€è‡´!!!";
     }
   }
 
@@ -1176,13 +1176,13 @@ protected:
 
     url_reqctx_builder.SetFileTaskRunner(task_runner_);
 
-    //¸´ÖÆÒÑÌá½»µÄ¶©ÔÄµ½ÅÅ¶Ó·¢ËÍ
+    //å¤åˆ¶å·²æäº¤çš„è®¢é˜…åˆ°æ’é˜Ÿå‘é€
     while (subscribing_topics_.size() > 0) {
       queued_subscribe_topics_.push(subscribing_topics_.front());
       subscribing_topics_.pop();
     }
 
-    //ÇåÀíÏûÏ¢»á»°
+    //æ¸…ç†æ¶ˆæ¯ä¼šè¯
     if (clear_session_) {
       if (queued_publish_topics_.size() > 0) {
         std::queue< scoped_refptr<PublishTopicItem> > tmp_publish_topics;
@@ -1253,100 +1253,100 @@ private:
 
   uint32_t flags_;
 
-  //ÒÑ³É¹¦Á¬½Ó´ÎÊı
+  //å·²æˆåŠŸè¿æ¥æ¬¡æ•°
   size_t connected_count_;
 
-  //³¢ÊÔÁ¬½Ó´ÎÊı
+  //å°è¯•è¿æ¥æ¬¡æ•°
   size_t doconnect_count_;
 
-  //×îºó·¢²¼Êı¾İÊ±¼ä
+  //æœ€åå‘å¸ƒæ•°æ®æ—¶é—´
   base::Time last_publish_time_;
 
-  //×Ü·¢²¼ÊıÁ¿
+  //æ€»å‘å¸ƒæ•°é‡
   size_t publish_count_;
 
-  //Æ½¾ù·¢²¼ÊÂ¼ş
+  //å¹³å‡å‘å¸ƒäº‹ä»¶
   base::TimeDelta publish_delta_total_;
 
-  //Æ½¾ù·¢²¼×îĞ¡Ê±¼ä
+  //å¹³å‡å‘å¸ƒæœ€å°æ—¶é—´
   base::TimeDelta publish_delta_min_;
 
-  //Æ½¾ù·¢²¼×î´óÊ±¼ä
+  //å¹³å‡å‘å¸ƒæœ€å¤§æ—¶é—´
   base::TimeDelta publish_delta_max_;
 
-  //ÖØÁ¬¼ä¸ô(Ãë)
+  //é‡è¿é—´éš”(ç§’)
   size_t reconnect_delay_seconds_;
 
-  //keepalive¼ä¸ô(Ãë)
+  //keepaliveé—´éš”(ç§’)
   size_t keep_alive_interval_;
 
-  //¿Í»§¶ËCLIENTID
+  //å®¢æˆ·ç«¯CLIENTID
   std::string client_id_;
 
-  //ÓÃ»§Ãû
+  //ç”¨æˆ·å
   std::string username_;
 
-  //ÃÜÂë
+  //å¯†ç 
   std::string password_;
 
-  //¶Ï¿ªÊÇ·ñÇåÀí»á»°
+  //æ–­å¼€æ˜¯å¦æ¸…ç†ä¼šè¯
   bool clear_session_;
 
-  //·¢ËÍ×î´óÖØÊÔ´ÎÊı
+  //å‘é€æœ€å¤§é‡è¯•æ¬¡æ•°
   size_t publish_retry_max_;
 
-  //ÄÚ²¿ÏûÏ¢id
+  //å†…éƒ¨æ¶ˆæ¯id
   uint16_t msgid_;
 
-  //Í£Ö¹ÊÂ¼ş
+  //åœæ­¢äº‹ä»¶
   base::WaitableEvent shutdown_event_;
 
-  //WebSocketµØÖ·
+  //WebSocketåœ°å€
   GURL socket_url_;
 
-  //WebSocketÀ´Ô´
+  //WebSocketæ¥æº
   url::Origin origin_;
 
-  //ÓïÑÔ
+  //è¯­è¨€
   std::string accept_language_;
 
   //UserAgent
   std::string user_agent_;
 
-  //Ö´ĞĞÈÎºÎÔËĞĞÆ÷
+  //æ‰§è¡Œä»»ä½•è¿è¡Œå™¨
   scoped_refptr<base::SingleThreadTaskRunner> task_runner_;
 
-  //WebSocketÍ¨µÀ
+  //WebSocketé€šé“
   scoped_ptr<WebSocketChannel> websocket_channel_;
 
-  //URLÉÏÏÂÎÄ
+  //URLä¸Šä¸‹æ–‡
   scoped_ptr<URLRequestContext> url_request_context_;
 
-  //mqtt over websocketÊÂ¼ş´¦Àí½Ó¿Ú
+  //mqtt over websocketäº‹ä»¶å¤„ç†æ¥å£
   MQTTOverWebSocketEventInterface *mqtt_websaocket_evt_;
 
-  //ÇëÇóĞ­Òé(MQTTÍ·)
+  //è¯·æ±‚åè®®(MQTTå¤´)
   std::vector<std::string> requested_protocols_;
 
-  //´úÀíÅäÖÃ·şÎñ
+  //ä»£ç†é…ç½®æœåŠ¡
   scoped_ptr<ProxyConfigService> proxy_config_service_;
 
-  //ÒÑ¶©ÔÄµÄÖ÷ÌâÃû³Æ
+  //å·²è®¢é˜…çš„ä¸»é¢˜åç§°
   std::set<std::string> subscribe_topic_names_;
 
-  //ÅÅ¶ÓÖĞµÄ¶©ÔÄÖ÷Ìâ
+  //æ’é˜Ÿä¸­çš„è®¢é˜…ä¸»é¢˜
   std::queue< scoped_refptr<SubscribeTopicItem> > queued_subscribe_topics_;
 
-  //ÒÑ¶©ÔÄµÄÖ÷Ìâ
+  //å·²è®¢é˜…çš„ä¸»é¢˜
   std::map<std::string, scoped_refptr<SubscribeTopicItem> > subscribed_topics_;
 
-  //Ïò·şÎñÆ÷·¢ËÍ¶©ÔÄ°üµÄÖ÷Ìâ
+  //å‘æœåŠ¡å™¨å‘é€è®¢é˜…åŒ…çš„ä¸»é¢˜
   std::queue< scoped_refptr<SubscribeTopicItem> > subscribing_topics_;
 
-  //ÅÅ¶Ó·¢ËÍµÄÏûÏ¢
+  //æ’é˜Ÿå‘é€çš„æ¶ˆæ¯
   std::queue< scoped_refptr<PublishTopicItem> > queued_publish_topics_;
 
-  //¹Û²ì¶ÔÏó
+  //è§‚å¯Ÿå¯¹è±¡
   MQTTOverWebSocketClient::Observer *observer_;
 
 };
