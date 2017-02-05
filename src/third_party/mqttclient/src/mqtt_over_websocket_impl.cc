@@ -772,7 +772,9 @@ public:
     shutdown_event_(true, false),
     socket_url_(socket_url),
     origin_(origin),
-    mqtt_websaocket_evt_(NULL) {
+    mqtt_websaocket_evt_(NULL),
+    queued_subscribe_lock_(new base::Lock),
+    queued_publish_lock_(new base::Lock) {
   }
 
   MQTTOverWebSocketClientImpl() :
@@ -786,7 +788,9 @@ public:
     publish_retry_max_(3),
     msgid_(1),
     shutdown_event_(true, false),
-    mqtt_websaocket_evt_(NULL) {
+    mqtt_websaocket_evt_(NULL),
+    queued_subscribe_lock_(new base::Lock),
+    queued_publish_lock_(new base::Lock) {
   }
 
 
@@ -843,6 +847,7 @@ public:
     if (!task_runner_) {
       if (subscribe_topic_names_.find(val) != subscribe_topic_names_.end()) return;
       subscribe_topic_names_.insert(val);
+      base::AutoLock lock_guard(*queued_subscribe_lock_);
       queued_subscribe_topics_.push(make_scoped_refptr(new SubscribeTopicItem(val, qos)));
       return;
     }
@@ -856,9 +861,11 @@ public:
     scoped_refptr<SubscribeTopicItem> item = make_scoped_refptr(new SubscribeTopicItem(val, qos));
     if ((flags_ & CLIENT_CONNECTED) != 0) {
       if (mqtt_websaocket_evt_->SubscribeTopic(item) != ChannelState::CHANNEL_ALIVE) {
+        base::AutoLock lock_guard(*queued_subscribe_lock_);
         queued_subscribe_topics_.push(item);
       }
     } else {
+      base::AutoLock lock_guard(*queued_subscribe_lock_);
       queued_subscribe_topics_.push(item);
     }
   }
@@ -872,10 +879,10 @@ public:
     }
     if (subscribe_topic_names_.find(topic_name) == subscribe_topic_names_.end()) return;
     std::queue< scoped_refptr<SubscribeTopicItem> > tmp_queued;
+
+    queued_subscribe_lock_->Acquire();
     queued_subscribe_topics_.swap(tmp_queued);
-
     scoped_refptr<SubscribeTopicItem> unitem;
-
     while (tmp_queued.size()) {
       scoped_refptr<SubscribeTopicItem> item = tmp_queued.front();
       tmp_queued.pop();
@@ -885,6 +892,7 @@ public:
       }
       queued_subscribe_topics_.push(item);
     }
+    queued_subscribe_lock_->Release();
 
     subscribe_topic_names_.erase(topic_name);
 
@@ -912,7 +920,9 @@ public:
     const std::vector<char> &data,
     int qos = 0, bool retain = false) override {
     if (!task_runner_) {
+      queued_publish_lock_->Acquire();
       queued_publish_topics_.push(make_scoped_refptr(new PublishTopicItem(val, pid, data, qos, retain)));
+      queued_publish_lock_->Release();
       return;
     }
     if (!task_runner_->RunsTasksOnCurrentThread()) {
@@ -920,7 +930,9 @@ public:
         this, val, pid, data, qos, retain));
       return;
     }
+    queued_publish_lock_->Acquire();
     queued_publish_topics_.push(make_scoped_refptr(new PublishTopicItem(val, pid, data, qos, retain)));
+    queued_publish_lock_->Release();
     if ((flags_ & CLIENT_CONNECTED) != 0 && !mqtt_websaocket_evt_->IsPublishingTopicFlagOn()) {
       if (ChannelState::CHANNEL_ALIVE != mqtt_websaocket_evt_->PublishQueuedTopics()) {
         OnChannelDisConnect();
@@ -999,6 +1011,7 @@ public:
   }
 
   scoped_refptr<SubscribeTopicItem> take_queued_subscribe_topic() override {
+    base::AutoLock lock_guard(*queued_subscribe_lock_);
     if (queued_subscribe_topics_.size() == 0) return scoped_refptr<SubscribeTopicItem>();
     scoped_refptr<SubscribeTopicItem> result = queued_subscribe_topics_.front();
     result->msgid = generate_msgid();
@@ -1007,6 +1020,7 @@ public:
   }
 
   void return_queued_subscribe_topic(scoped_refptr<SubscribeTopicItem> item) override {
+    base::AutoLock lock_guard(*queued_subscribe_lock_);
     queued_subscribe_topics_.push(item);
   }
 
@@ -1019,6 +1033,7 @@ public:
   }
 
   scoped_refptr<PublishTopicItem> get_queued_publish_topic_front() override {
+    base::AutoLock lock_guard(*queued_publish_lock_);
     scoped_refptr<PublishTopicItem> item;
   re_take:
     if (queued_publish_topics_.size() == 0) return item;
@@ -1040,6 +1055,7 @@ public:
   }
 
   size_t get_queued_publish_topic_count() const override {
+    base::AutoLock lock_guard(*queued_publish_lock_);
     return queued_publish_topics_.size();
   }
 
@@ -1172,14 +1188,17 @@ protected:
 
     url_reqctx_builder.SetFileTaskRunner(task_runner_);
 
+    queued_subscribe_lock_->Acquire();
     //复制已提交的订阅到排队发送
     while (subscribing_topics_.size() > 0) {
       queued_subscribe_topics_.push(subscribing_topics_.front());
       subscribing_topics_.pop();
     }
+    queued_subscribe_lock_->Release();
 
     //清理消息会话
     if (clear_session_) {
+      queued_publish_lock_->Acquire();
       if (queued_publish_topics_.size() > 0) {
         std::queue< scoped_refptr<PublishTopicItem> > tmp_publish_topics;
         while (queued_publish_topics_.size() > 0) {
@@ -1190,10 +1209,13 @@ protected:
         }
         queued_publish_topics_ = tmp_publish_topics;
       }
+      queued_publish_lock_->Release();
+      queued_subscribe_lock_->Acquire();
       for (auto sit : subscribed_topics_) {
         queued_subscribe_topics_.push(sit.second);
       }
       subscribed_topics_.clear();
+      queued_subscribe_lock_->Release();
     }
 
     url_request_context_ = url_reqctx_builder.Build();
@@ -1230,8 +1252,8 @@ protected:
       flags_ &= ~CLIENT_DISCONNECTING;
       flags_ |= CLIENT_CONNECTING;
     }
-    task_runner_->PostDelayedTask(FROM_HERE, base::Bind(&MQTTOverWebSocketClientImpl::CreateStartWebSocketChannelInThread, this),
-      base::TimeDelta::FromSeconds(reconnect_delay_seconds_));
+    task_runner_->PostDelayedTask(FROM_HERE, base::Bind(&MQTTOverWebSocketClientImpl::CreateStartWebSocketChannelInThread, 
+      this), base::TimeDelta::FromSeconds(reconnect_delay_seconds_));
   }
 
 private:
@@ -1332,6 +1354,7 @@ private:
 
   //排队中的订阅主题
   std::queue< scoped_refptr<SubscribeTopicItem> > queued_subscribe_topics_;
+  scoped_ptr<base::Lock> queued_subscribe_lock_;
 
   //已订阅的主题
   std::map<std::string, scoped_refptr<SubscribeTopicItem> > subscribed_topics_;
@@ -1341,6 +1364,7 @@ private:
 
   //排队发送的消息
   std::queue< scoped_refptr<PublishTopicItem> > queued_publish_topics_;
+  scoped_ptr<base::Lock> queued_publish_lock_;
 
   //观察对象
   MQTTOverWebSocketClient::Observer *observer_;
