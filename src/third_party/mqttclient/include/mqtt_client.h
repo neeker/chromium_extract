@@ -155,14 +155,20 @@ public:
     //已启动
     MQTT_ClientStartup,
 
-    //已停止
-    MQTT_ClientShutdown,
+    //连接中
+    MQTT_RemoteConnecting,
+
+    //无法连接
+    MQTT_RemoteConnectError,
 
     //已连接
     MQTT_RemoteConnected,
 
     //已断开
     MQTT_RemoteDisConnected,
+
+    //已停止
+    MQTT_ClientShutdown,
 
   };
 

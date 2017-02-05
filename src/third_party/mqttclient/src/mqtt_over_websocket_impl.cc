@@ -1078,9 +1078,10 @@ public:
 
   void OnChannelDisConnect() override {
     if ((flags_ & CLIENT_DISCONNECTING) != 0) return;
+    bool prev_connected = (flags_ & CLIENT_CONNECTED) != 0;
     flags_ &= ~CLIENT_CONNECTED;
     flags_ |= CLIENT_DISCONNECTING;
-    observer_->OnStateChanged(MQTT_RemoteDisConnected);
+    observer_->OnStateChanged(prev_connected ? MQTT_RemoteDisConnected : MQTT_RemoteConnectError);
     task_runner_->PostTask(FROM_HERE, base::Bind(&MQTTOverWebSocketClientImpl::ReleaseClientContext, this));
   }
 
@@ -1161,6 +1162,7 @@ protected:
     if (!task_runner_) {
       task_runner_ = MQTTOverWebSocketThreadHolder::GetTaskRunner();
     }
+    observer_->OnStateChanged(MQTT_ClientStartup);
     return task_runner_->PostTask(FROM_HERE, base::Bind(
       &MQTTOverWebSocketClientImpl::CreateStartWebSocketChannelInThread, this));
   }
@@ -1221,7 +1223,7 @@ protected:
     url_request_context_ = url_reqctx_builder.Build();
     websocket_channel_.reset(new WebSocketChannel(MakeWebSocketEventInterface(), url_request_context_.get()));
     websocket_channel_->SendAddChannelRequest(socket_url_, requested_protocols_, origin_);
-    observer_->OnStateChanged(MQTT_ClientStartup);
+    observer_->OnStateChanged(MQTT_RemoteConnecting);
   }
 
   scoped_ptr<WebSocketEventInterface> MakeWebSocketEventInterface() {
@@ -1252,8 +1254,27 @@ protected:
       flags_ &= ~CLIENT_DISCONNECTING;
       flags_ |= CLIENT_CONNECTING;
     }
-    task_runner_->PostDelayedTask(FROM_HERE, base::Bind(&MQTTOverWebSocketClientImpl::CreateStartWebSocketChannelInThread, 
-      this), base::TimeDelta::FromSeconds(reconnect_delay_seconds_));
+    reconnect_starttime_ = base::Time::Now();
+    task_runner_->PostDelayedTask(FROM_HERE, base::Bind(&MQTTOverWebSocketClientImpl::RetryConnect,
+      this), base::TimeDelta::FromMilliseconds(200));
+  }
+
+  void RetryConnect() {
+    if ((flags_ & CLIENT_SHUTDOWN) != 0) {
+      observer_->OnStateChanged(MQTT_ClientShutdown);
+      flags_ &= ~CLIENT_CONNECTING;
+      flags_ &= ~CLIENT_SESSION;
+      shutdown_event_.Signal();
+      return;
+    }
+
+    base::TimeDelta reconnect_delta = base::Time::Now() - reconnect_starttime_;
+    if (reconnect_delta.InSeconds() >= reconnect_delay_seconds_) {
+      CreateStartWebSocketChannelInThread();
+    } else {
+      task_runner_->PostDelayedTask(FROM_HERE, base::Bind(&MQTTOverWebSocketClientImpl::RetryConnect,
+        this), base::TimeDelta::FromMilliseconds(200));
+    }
   }
 
 private:
@@ -1266,6 +1287,8 @@ private:
     CLIENT_SHUTDOWN = 1L << 4,
     CLIENT_SESSION = 1L << 5,
   };
+
+  base::Time reconnect_starttime_;
 
   MQTTVersion mqtt_version_;
 
