@@ -203,6 +203,8 @@ public:
       const std::string &pid, const std::vector<char> &data,
       int qos, bool retain) = 0;
 
+    virtual void OnIdle() = 0;
+
   };
 
   virtual void SetObserver(Observer *val) = 0;

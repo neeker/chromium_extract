@@ -154,7 +154,9 @@ public:
 
     virtual const std::string &get_client_id() const = 0;
 
-    virtual size_t get_alive_check_internal() const = 0;
+    virtual size_t get_alive_check_interval() const = 0;
+
+    virtual size_t get_idle_interval() const = 0;
 
     virtual uint8_t get_mqtt_version() const = 0;
 
@@ -180,6 +182,8 @@ public:
     virtual void OnMQTTConnect() = 0;
 
     virtual void OnChannelDisConnect() = 0;
+
+    virtual void OnChannelIdle() = 0;
 
     virtual void OnSubscribeTopicSubmit(scoped_refptr<SubscribeTopicItem> item) = 0;
 
@@ -260,12 +264,13 @@ public:
       task_runner_->PostTask(FROM_HERE, base::Bind(&MQTTOverWebSocketEventInterface::OnMQTTConnectAbort, base::Unretained(this)));
       return channel_state;
     }
-    ResetMQTTCheckAlive();
     channel_state = PublishQueuedTopics();
     if (channel_state != ChannelState::CHANNEL_ALIVE) {
       task_runner_->PostTask(FROM_HERE, base::Bind(&MQTTOverWebSocketEventInterface::OnMQTTConnectAbort, base::Unretained(this)));
       return channel_state;
     }
+    ResetMQTTCheckAlive();
+    ResetChannelCheckIdle();
     ReadMQTTDatas(data.size());
     return channel_state;
   }
@@ -278,9 +283,21 @@ public:
       }
     } else {
       alive_check_timer_.reset(new base::Timer(FROM_HERE,
-        base::TimeDelta::FromSeconds(mqtt_params_getter_->get_alive_check_internal()),
-        base::Bind(&MQTTOverWebSocketEventInterface::CheckMQTTAlive, base::Unretained(this)), true));
+        base::TimeDelta::FromSeconds(mqtt_params_getter_->get_alive_check_interval()),
+        base::Bind(&MQTTOverWebSocketEventInterface::OnMQTTCheckAlive, base::Unretained(this)), true));
       alive_check_timer_->SetTaskRunner(task_runner_);
+    }
+  }
+
+  void ResetChannelCheckIdle() {
+    if (idle_check_timer_) {
+      if (lastsend_) {
+        idle_check_timer_->Reset();
+      }
+    } else {
+      idle_check_timer_.reset(new base::Timer(FROM_HERE,
+        base::TimeDelta::FromSeconds(mqtt_params_getter_->get_idle_interval()),
+        base::Bind(&MQTTOverWebSocketEventInterface::OnChannelCheckIdle, base::Unretained(this)), true));
     }
   }
 
@@ -288,6 +305,13 @@ public:
     if (alive_check_timer_) {
       alive_check_timer_->Stop();
       alive_check_timer_.reset();
+    }
+  }
+
+  void StopChannelCheckIdle() {
+    if (idle_check_timer_) {
+      idle_check_timer_->Stop();
+      idle_check_timer_.reset();
     }
   }
 
@@ -462,7 +486,13 @@ public:
     }
   }
 
-  void CheckMQTTAlive() {
+  void OnChannelCheckIdle() {
+    if (IsPingCheckingFlagOn() || IsPublishingTopicFlagOn()) return;
+    if (mqtt_params_getter_->get_queued_publish_topic_count() > 0) return;
+    observer_->OnChannelIdle();
+  }
+
+  void OnMQTTCheckAlive() {
     if (IsPingCheckingFlagOn()) {
       OnMQTTConnectAbort();
     } else if (!IsPublishingTopicFlagOn() && mqtt_params_getter_->get_queued_publish_topic_count() > 0) {
@@ -478,6 +508,7 @@ public:
   }
 
   void OnMQTTConnectAbort() {
+    StopChannelCheckIdle();
     StopMQTTCheckAlive();
     SetChannelConnectedFlagOn(false);
     observer_->OnChannelDisConnect();
@@ -538,7 +569,7 @@ public:
     conn_data.clientID.cstring = &clientid[0];
     conn_data.username.cstring = &username[0];
     conn_data.password.cstring = &password[0];
-    conn_data.keepAliveInterval = mqtt_params_getter_->get_alive_check_internal();
+    conn_data.keepAliveInterval = mqtt_params_getter_->get_alive_check_interval();
     uint8_t conn_outbuf[1024];
     int rc = MQTTSerialize_connect(conn_outbuf, 1024, &conn_data);
     return SendMQTTDataFrame(std::vector<char>(&conn_outbuf[0], &conn_outbuf[rc]));
@@ -714,6 +745,7 @@ private:
   uint32_t flags_;
   int64_t channel_quota_;
   scoped_ptr<base::Timer> alive_check_timer_;
+  scoped_ptr<base::Timer> idle_check_timer_;
   scoped_refptr<base::SingleThreadTaskRunner> task_runner_;
   ParamsGetter *mqtt_params_getter_;
   bool lastsend_;
@@ -784,6 +816,7 @@ public:
     publish_count_(0),
     reconnect_delay_seconds_(30),
     keep_alive_interval_(30),
+    idle_interval_(1),
     clear_session_(true),
     publish_retry_max_(3),
     msgid_(1),
@@ -928,15 +961,12 @@ public:
         this, val, pid, data, qos, retain));
       return;
     }
-
     queued_publish_topics_.push(make_scoped_refptr(new PublishTopicItem(val, pid, data, qos, retain)));
-
     if ((flags_ & CLIENT_CONNECTED) != 0 && !mqtt_websaocket_evt_->IsPublishingTopicFlagOn()) {
       if (ChannelState::CHANNEL_ALIVE != mqtt_websaocket_evt_->PublishQueuedTopics()) {
         OnChannelDisConnect();
       }
     }
-
   }
 
   void set_accept_language(const std::string &val) {
@@ -957,6 +987,10 @@ public:
 
   void set_keep_alive_interval(size_t val) {
     keep_alive_interval_ = val;
+  }
+
+  void set_idle_interval(size_t val) {
+    idle_interval_ = val;
   }
 
   void set_client_id(const std::string &val) {
@@ -989,8 +1023,12 @@ public:
     return !!websocket_channel_;
   }
 
-  size_t get_alive_check_internal() const override {
+  size_t get_alive_check_interval() const override {
     return keep_alive_interval_;
+  }
+
+  size_t get_idle_interval() const override {
+    return idle_interval_;
   }
 
   const std::string &get_username() const override {
@@ -1143,6 +1181,10 @@ public:
 
   void OnRemoteMessageServerReply(uint16_t msgid, bool *handled) override {
     observer_->OnRemoteMessageServerReply(msgid, handled);
+  }
+
+  void OnChannelIdle() override {
+    observer_->OnIdle();
   }
 
 protected:
@@ -1310,6 +1352,9 @@ private:
 
   //keepalive间隔(秒)
   size_t keep_alive_interval_;
+
+  //空闲间隔
+  size_t idle_interval_;
 
   //客户端CLIENTID
   std::string client_id_;
