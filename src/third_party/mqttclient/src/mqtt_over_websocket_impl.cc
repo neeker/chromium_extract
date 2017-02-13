@@ -1076,7 +1076,7 @@ public:
       item->msgid = generate_msgid();
     } else {
       item->dup = 1;
-      if (item->send_times >= publish_retry_max_) {
+      if (publish_retry_max_ > 0 && item->send_times >= publish_retry_max_) {
         queued_publish_topics_.pop();
         observer_->OnPublishMessageOccurError(PublishError::ERROR_PUBISH_MAXRETRY,
           item->topic_name, item->pid(), item->data, item->qos, item->retain);
