@@ -870,6 +870,7 @@ public:
   void WaitShutdown() {
     if (flags_ == 0) return;
     shutdown_event_.Wait();
+    flags_ = 0;
   }
 
   bool TimeWaitShutdown(const base::TimeDelta &max_time) {
@@ -1282,6 +1283,7 @@ protected:
       flags_ &= ~CLIENT_DISCONNECTING;
       flags_ &= ~CLIENT_SESSION;
       shutdown_event_.Signal();
+      return;
     } else {
       flags_ &= ~CLIENT_DISCONNECTING;
       flags_ |= CLIENT_CONNECTING;
